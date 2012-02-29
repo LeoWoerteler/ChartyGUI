@@ -5,6 +5,13 @@ import java.awt.image.BufferedImage;
 import de.woerteler.charty.ChartParser.Edge;
 import de.woerteler.charty.DisplayMethod;
 
+/**
+ * Generates a graphical representation of the syntax tree via LaTeX and
+ * GhostScript.
+ * 
+ * @author Joschi
+ * 
+ */
 public class LatexDisplay implements DisplayMethod {
 
   /**

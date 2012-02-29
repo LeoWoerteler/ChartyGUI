@@ -1,7 +1,6 @@
 package de.woerteler.charty;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 import de.woerteler.charty.ChartParser.Edge;
 
@@ -15,6 +14,7 @@ public final class ParseTree {
   /** Root edge of this tree. */
   private final Edge edge;
 
+  /** The method that is used to draw the tree. */
   private final DisplayMethod method;
 
   /** The image. */
@@ -24,17 +24,18 @@ public final class ParseTree {
    * Constructor.
    * 
    * @param e root edge
+   * @param m the drawing method
    */
-  ParseTree(final Edge e, final DisplayMethod method) {
+  ParseTree(final Edge e, final DisplayMethod m) {
+    method = m;
     edge = e;
-    this.method = method;
   }
 
   /**
    * Get the image of this parse tree.
    * 
    * @return parse tree image
-   * @throws IOException if the conversion fails
+   * @throws Exception if the conversion fails
    */
   public synchronized BufferedImage getImage() throws Exception {
     if(image == null) {

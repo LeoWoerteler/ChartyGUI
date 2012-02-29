@@ -312,6 +312,9 @@ public final class ChartParser {
       }
     }
 
+    /**
+     * @return Iterates over the children.
+     */
     public Iterable<Edge> children() {
       return children;
     }
