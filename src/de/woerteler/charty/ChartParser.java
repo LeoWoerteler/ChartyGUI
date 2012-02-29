@@ -5,9 +5,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import de.woerteler.tree.ImageDisplay;
+
 /**
  * This class implements a chart parser.
- *
+ * 
  * @author Leo Woerteler
  */
 public final class ChartParser {
@@ -25,7 +27,7 @@ public final class ChartParser {
 
   /**
    * Constructor taking the grammar an tokens to parse.
-   *
+   * 
    * @param g grammar
    * @param tok tokens to parse
    * @param list info listener, may be {@code null}
@@ -39,7 +41,7 @@ public final class ChartParser {
 
   /**
    * Parses a sequence of tokens.
-   *
+   * 
    * @param g grammar definition
    * @param tok tokens to parse
    * @param listener info listener, may be {@code null}
@@ -54,19 +56,19 @@ public final class ChartParser {
 
   /**
    * Performs the parse.
-   *
+   * 
    * @return list of parse trees
    * @throws ParserException in case of errors
    */
   private List<ParseTree> parse() throws ParserException {
 
     int pos = 0;
-    for (int i = 0; i < tokens.length; i++) {
+    for(int i = 0; i < tokens.length; i++) {
       final String tok = tokens[i];
 
       // initialize with input token
-      for (final String lhs : grammar.getLHS(tok)) {
-        chart.add(new Edge(i, i + 1, 1, lhs, new String[] { tok },
+      for(final String lhs : grammar.getLHS(tok)) {
+        chart.add(new Edge(i, i + 1, 1, lhs, new String[] { tok},
             new ArrayList<Edge>()));
         log("I", "Adding edge: " + chart.get(chart.size() - 1));
       }
@@ -77,17 +79,17 @@ public final class ChartParser {
         change = ruleInvocation(pos);
         pos = len;
         change |= fundamentalRule();
-      } while (change);
+      } while(change);
     }
 
     final ArrayList<ParseTree> res = new ArrayList<ParseTree>();
-    for (final Edge e : chart) {
-      if (e.isActive()) {
+    for(final Edge e : chart) {
+      if(e.isActive()) {
         log("Chart", "Active: " + e);
       } else {
         log("Chart", "Inactive: " + e);
-        if (e.isOverspanning()) {
-          res.add(new ParseTree(e));
+        if(e.isOverspanning()) {
+          res.add(new ParseTree(e, new ImageDisplay()));
         }
       }
 
@@ -99,19 +101,19 @@ public final class ChartParser {
   /**
    * The fundamental rule of chart parsing generates new edges by combining
    * fitting active and inactive edges.
-   *
+   * 
    * @return change flag
    */
   private boolean fundamentalRule() {
     boolean change = false;
-    for (int i = 0; i < chart.size(); i++) {
+    for(int i = 0; i < chart.size(); i++) {
       final Edge e = chart.get(i);
-      if (e.isActive()) {
-        for (int k = 0; k < chart.size(); k++) {
+      if(e.isActive()) {
+        for(int k = 0; k < chart.size(); k++) {
           final Edge e2 = chart.get(k);
-          if (!e2.isActive() && e.matches(e2)) {
+          if(!e2.isActive() && e.matches(e2)) {
             final Edge nw = new Edge(e, e2);
-            if (!chart.contains(nw)) {
+            if(!chart.contains(nw)) {
               chart.add(nw);
               change = true;
               log("FR", "Adding edge: " + nw);
@@ -127,24 +129,23 @@ public final class ChartParser {
    * Add all the rules of the grammar to the chart that are relevant: Find the
    * rule with the LHS of edge as the leftmost RHS symbol and maximally the
    * remaining length of the input.
-   *
+   * 
    * @param pos current position in the chart
    * @return change flag
    */
   private boolean ruleInvocation(final int pos) {
     boolean change = false;
-    for (int i = pos; i < chart.size(); i++) {
+    for(int i = pos; i < chart.size(); i++) {
       final Edge e = chart.get(i);
-      if (!e.isActive()) {
-        for (final String lhs : grammar.withLeftmost(e.lhs)) {
-          for (final String[] rhs : grammar.rhs(lhs)) {
-            if (!rhs[0].equals(e.lhs)
-                || rhs.length > tokens.length - e.start) {
+      if(!e.isActive()) {
+        for(final String lhs : grammar.withLeftmost(e.lhs)) {
+          for(final String[] rhs : grammar.rhs(lhs)) {
+            if(!rhs[0].equals(e.lhs) || rhs.length > tokens.length - e.start) {
               continue;
             }
             final Edge nw = new Edge(e.start, e.end, 1, lhs, rhs,
                 new ArrayList<Edge>(Arrays.asList(e)));
-            if (!chart.contains(nw)) {
+            if(!chart.contains(nw)) {
               chart.add(nw);
               change = true;
               log("IV", "Adding edge: " + nw);
@@ -158,22 +159,22 @@ public final class ChartParser {
 
   /**
    * Logs a message.
-   *
+   * 
    * @param cat category
    * @param desc message
    */
   private void log(final String cat, final String desc) {
-    if (listener != null) {
+    if(listener != null) {
       listener.info(cat, desc);
     }
   }
 
   /**
    * An edge in the chart parser.
-   *
+   * 
    * @author Leo Woerteler
    */
-  final class Edge {
+  public final class Edge {
 
     /** Prime number used as factor in hash-code calculation. */
     private static final int HASH_CODE_PRIME = 31;
@@ -186,7 +187,7 @@ public final class ChartParser {
     final int dot;
 
     /** Left hand side. */
-    final String lhs;
+    public final String lhs;
     /** Right hand side. */
     private final String[] rhs;
 
@@ -195,19 +196,13 @@ public final class ChartParser {
 
     /**
      * Constructor.
-     *
-     * @param s
-     *            start
-     * @param e
-     *            end
-     * @param d
-     *            dot position
-     * @param lh
-     *            left hand side
-     * @param rh
-     *            right hand side
-     * @param kids
-     *            children of this edger
+     * 
+     * @param s start
+     * @param e end
+     * @param d dot position
+     * @param lh left hand side
+     * @param rh right hand side
+     * @param kids children of this edger
      */
     Edge(final int s, final int e, final int d, final String lh,
         final String[] rh, final List<Edge> kids) {
@@ -221,11 +216,9 @@ public final class ChartParser {
 
     /**
      * Combining constructor.
-     *
-     * @param a
-     *            active edge
-     * @param i
-     *            inactive edge
+     * 
+     * @param a active edge
+     * @param i inactive edge
      */
     Edge(final Edge a, final Edge i) {
       this(a.start, i.end, a.dot + 1, a.lhs, a.rhs.clone(),
@@ -235,9 +228,8 @@ public final class ChartParser {
 
     /**
      * Checks whether this active edge matches the given inactive edge.
-     *
-     * @param inactive
-     *            inactive edge
+     * 
+     * @param inactive inactive edge
      * @return result of check
      */
     boolean matches(final Edge inactive) {
@@ -246,9 +238,8 @@ public final class ChartParser {
 
     /**
      * Checks whether this edge is still active.
-     *
-     * @return {@code true}, if this edge is active, {@code false}
-     *         otherwise.
+     * 
+     * @return {@code true}, if this edge is active, {@code false} otherwise.
      */
     boolean isActive() {
       return dot < rhs.length;
@@ -256,7 +247,7 @@ public final class ChartParser {
 
     /**
      * Checks whether this edge spans over the entire input sequence.
-     *
+     * 
      * @return {@code true}, if this edge is overspanning, {@code false}
      */
     boolean isOverspanning() {
@@ -265,7 +256,7 @@ public final class ChartParser {
 
     @Override
     public boolean equals(final Object obj) {
-      if (!(obj instanceof Edge)) {
+      if(!(obj instanceof Edge)) {
         return false;
       }
       final Edge o = (Edge) obj;
@@ -277,8 +268,8 @@ public final class ChartParser {
     @Override
     public int hashCode() {
       int res = 0;
-      for (final int i : new int[] { start, end, dot, lhs.hashCode(),
-          Arrays.hashCode(rhs), children.hashCode() }) {
+      for(final int i : new int[] { start, end, dot, lhs.hashCode(),
+          Arrays.hashCode(rhs), children.hashCode()}) {
         res = HASH_CODE_PRIME * res + i;
       }
       return res;
@@ -292,7 +283,7 @@ public final class ChartParser {
 
     /**
      * Creates a representation of this subtree in bracketing notation.
-     *
+     * 
      * @return representation
      */
     public String toLaTeX() {
@@ -303,25 +294,28 @@ public final class ChartParser {
 
     /**
      * Recursive {@link #toLaTeX()} helper.
-     *
-     * @param sb
-     *            string builder for efficiency
-     * @param kids
-     *            list of children
+     * 
+     * @param sb string builder for efficiency
+     * @param kids list of children
      */
     private void toLaTeX(final StringBuilder sb, final List<Edge> kids) {
-      for (final Edge c : kids) {
+      for(final Edge c : kids) {
         sb.append(" [.").append(c.lhs);
-        if (!c.children.isEmpty()) {
+        if(!c.children.isEmpty()) {
           toLaTeX(sb, c.children);
         } else {
-          for (final String term : c.rhs) {
+          for(final String term : c.rhs) {
             sb.append(" ").append(term);
           }
         }
         sb.append(" ]");
       }
     }
+
+    public Iterable<Edge> children() {
+      return children;
+    }
+
   }
 
 }
