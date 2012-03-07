@@ -134,6 +134,11 @@ public final class Node {
     invalidate();
   }
 
+  /**
+   * Returns the children of this node.
+   * 
+   * @return The children of this node.
+   */
   public Iterable<Node> getChilds() {
     return childs;
   }
@@ -252,6 +257,11 @@ public final class Node {
     return getCenterX() - getWidth() * 0.5;
   }
 
+  /**
+   * The right side of the nodes rectangle in absolute coordinates.
+   * 
+   * @return right
+   */
   public double getRight() {
     return getCenterX() + getWidth() * 0.5;
   }
@@ -319,6 +329,11 @@ public final class Node {
     return getBottom() - TEXT_V_SPACE - lower;
   }
 
+  /**
+   * The label of this node.
+   * 
+   * @return The label of this node.
+   */
   public String getLabel() {
     return label;
   }
@@ -327,6 +342,7 @@ public final class Node {
    * Draws the node and its children.
    * 
    * @param g The graphics context.
+   * @param render The renderer to draw this node's sub tree.
    */
   public void draw(final Graphics2D g, final NodeRenderer render) {
     render.render(g, this);

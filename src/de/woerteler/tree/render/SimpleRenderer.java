@@ -8,6 +8,11 @@ import java.awt.geom.Rectangle2D;
 
 import de.woerteler.tree.Node;
 
+/**
+ * A simple colorful node renderer.
+ * 
+ * @author Joschi
+ */
 public class SimpleRenderer implements NodeRenderer {
 
   /**

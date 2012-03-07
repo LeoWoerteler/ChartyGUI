@@ -18,6 +18,11 @@ import de.woerteler.tree.render.SimpleRenderer;
  */
 public class ImageDisplay implements DisplayMethod {
 
+  /**
+   * The renderer that is used to draw the tree.
+   */
+  public static NodeRenderer renderer = new SimpleRenderer();
+
   @Override
   public BufferedImage getImage(final Edge e) throws Exception {
     final Node n = generateNodeStructure(e);
@@ -27,8 +32,7 @@ public class ImageDisplay implements DisplayMethod {
         (int) Math.ceil(bbox.getHeight()) + 1, BufferedImage.TYPE_INT_ARGB);
     final Graphics2D gfx = (Graphics2D) img.getGraphics();
     gfx.translate(-bbox.getMinX(), -bbox.getMinY());
-    final NodeRenderer render = new SimpleRenderer();
-    n.draw(gfx, render);
+    n.draw(gfx, renderer);
     gfx.dispose();
     return img;
   }
@@ -62,9 +66,15 @@ public class ImageDisplay implements DisplayMethod {
   private Node generateNodeStructure(final Edge e, final Node parent,
       final FontMetrics fm) {
     final Node n = Node.createNode(parent, e.lhs, fm);
-    for(final Edge c : e) {
-      final Node nc = generateNodeStructure(c, n, fm);
-      n.addChild(nc);
+    if(e.hasRealChildren()) {
+      for(final Edge c : e) {
+        final Node nc = generateNodeStructure(c, n, fm);
+        n.addChild(nc);
+      }
+    } else {
+      for(final String label : e.rhs) {
+        n.addChild(Node.createNode(n, label, fm));
+      }
     }
     return n;
   }
