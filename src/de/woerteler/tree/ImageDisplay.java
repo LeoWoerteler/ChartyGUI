@@ -1,15 +1,17 @@
 package de.woerteler.tree;
 
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import de.woerteler.charty.ChartParser.Edge;
 import de.woerteler.charty.DisplayMethod;
+import de.woerteler.tree.render.DefaultRenderer;
 import de.woerteler.tree.render.NodeRenderer;
-import de.woerteler.tree.render.SimpleRenderer;
 
 /**
  * Generates a graphical representation of a syntax tree via direct drawing.
@@ -21,7 +23,13 @@ public class ImageDisplay implements DisplayMethod {
   /**
    * The renderer that is used to draw the tree.
    */
-  public static NodeRenderer renderer = new SimpleRenderer();
+  public static NodeRenderer RENDERER = new DefaultRenderer();
+
+  /**
+   * The font to draw the labels or <code>null</code> if the default font should
+   * be used.
+   */
+  public static Font FONT = Font.decode("times new roman BOLD 12");
 
   @Override
   public BufferedImage getImage(final Edge e) throws Exception {
@@ -31,8 +39,13 @@ public class ImageDisplay implements DisplayMethod {
         (int) Math.ceil(bbox.getWidth()) + 1,
         (int) Math.ceil(bbox.getHeight()) + 1, BufferedImage.TYPE_INT_ARGB);
     final Graphics2D gfx = (Graphics2D) img.getGraphics();
+    gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON);
+    if(FONT != null) {
+      gfx.setFont(FONT);
+    }
     gfx.translate(-bbox.getMinX(), -bbox.getMinY());
-    n.draw(gfx, renderer);
+    n.draw(gfx, RENDERER);
     gfx.dispose();
     return img;
   }
@@ -48,6 +61,9 @@ public class ImageDisplay implements DisplayMethod {
     final BufferedImage dummy = new BufferedImage(1, 1,
         BufferedImage.TYPE_INT_ARGB);
     final Graphics dummyGfx = dummy.getGraphics();
+    if(FONT != null) {
+      dummyGfx.setFont(FONT);
+    }
     final FontMetrics fm = dummyGfx.getFontMetrics();
     final Node n = generateNodeStructure(e, null, fm);
     dummyGfx.dispose();
