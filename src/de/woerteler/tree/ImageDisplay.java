@@ -1,6 +1,5 @@
 package de.woerteler.tree;
 
-import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -9,6 +8,8 @@ import java.awt.image.BufferedImage;
 
 import de.woerteler.charty.ChartParser.Edge;
 import de.woerteler.charty.DisplayMethod;
+import de.woerteler.tree.render.NodeRenderer;
+import de.woerteler.tree.render.SimpleRenderer;
 
 /**
  * Generates a graphical representation of a syntax tree via direct drawing.
@@ -16,26 +17,6 @@ import de.woerteler.charty.DisplayMethod;
  * @author Joschi
  */
 public class ImageDisplay implements DisplayMethod {
-
-  /**
-   * The color of the lines.
-   */
-  public static final Color LINES = Color.BLACK;
-
-  /**
-   * The color of the rectangle borders.
-   */
-  public static final Color BORDER = Color.BLACK;
-
-  /**
-   * The filling color of the rectangles.
-   */
-  public static final Color FILL = Color.ORANGE;
-
-  /**
-   * The text color.
-   */
-  public static final Color TEXT = Color.BLACK;
 
   @Override
   public BufferedImage getImage(final Edge e) throws Exception {
@@ -46,7 +27,8 @@ public class ImageDisplay implements DisplayMethod {
         (int) Math.ceil(bbox.getHeight()) + 1, BufferedImage.TYPE_INT_ARGB);
     final Graphics2D gfx = (Graphics2D) img.getGraphics();
     gfx.translate(-bbox.getMinX(), -bbox.getMinY());
-    n.draw(gfx, LINES, BORDER, FILL, TEXT);
+    final NodeRenderer render = new SimpleRenderer();
+    n.draw(gfx, render);
     gfx.dispose();
     return img;
   }
