@@ -190,7 +190,7 @@ public final class ChartParser {
     /** Left hand side. */
     public final String lhs;
     /** Right hand side. */
-    private final String[] rhs;
+    public final String[] rhs;
 
     /** Ancestors of this edge. */
     private final List<Edge> children;
@@ -311,6 +311,15 @@ public final class ChartParser {
         }
         sb.append(" ]");
       }
+    }
+
+    /**
+     * Checks whether the edge has real children.
+     * 
+     * @return Whether the edge has real children or just text as children.
+     */
+    public boolean hasRealChildren() {
+      return !children.isEmpty();
     }
 
     @Override

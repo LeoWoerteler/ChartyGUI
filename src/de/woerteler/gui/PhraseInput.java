@@ -42,6 +42,7 @@ public final class PhraseInput extends JPanel {
         }
       }
     });
+    input.setText("Mary killed the man with the tie");
     add(input, BorderLayout.CENTER);
 
     final JButton parse = new JButton("Parse");

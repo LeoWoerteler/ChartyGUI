@@ -1,21 +1,21 @@
 package de.woerteler.tree;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.woerteler.tree.render.NodeRenderer;
+
 /**
  * Provides a visual representation of a syntax tree.
- *
+ * 
  * @author Joschi
  */
-final class Node {
+public final class Node {
 
   /**
    * The horizontal space between two nodes.
@@ -39,7 +39,7 @@ final class Node {
 
   /**
    * Creates a single new node.
-   *
+   * 
    * @param parent The parent of the node or <code>null</code> if it is the root
    *          node.
    * @param str The string that will be the label.
@@ -57,8 +57,8 @@ final class Node {
     if(parent == null) {
       return new Node(null, width, height, 0, str, lower);
     }
-    return new Node(parent, width, height, parent.y + parent.height +
-        VERTICAL_SPACE, str, lower);
+    return new Node(parent, width, height, parent.y + parent.height
+        + VERTICAL_SPACE, str, lower);
   }
 
   /**
@@ -99,7 +99,7 @@ final class Node {
 
   /**
    * Creates a node.
-   *
+   * 
    * @param par The parent of the node.
    * @param w The width of the node.
    * @param h The height of the node.
@@ -108,8 +108,8 @@ final class Node {
    * @param bot The distance from the bottom of the node to the bottom of the
    *          text given by the font metric.
    */
-  private Node(final Node par, final double w, final double h, final double top,
-      final String str, final double bot) {
+  private Node(final Node par, final double w, final double h,
+      final double top, final String str, final double bot) {
     parent = par;
     lower = bot;
     label = str;
@@ -121,6 +121,7 @@ final class Node {
 
   /**
    * Adds a child.
+   * 
    * @param n The child.
    * @throws IllegalArgumentException If the node is not the parent of the
    *           child.
@@ -131,6 +132,15 @@ final class Node {
     }
     childs.add(n);
     invalidate();
+  }
+
+  /**
+   * Returns the children of this node.
+   * 
+   * @return The children of this node.
+   */
+  public Iterable<Node> getChilds() {
+    return childs;
   }
 
   /**
@@ -153,7 +163,7 @@ final class Node {
   /**
    * The horizontal space of the node. That is the maximum of the width of the
    * node and the overall horizontal space of its descendants.
-   *
+   * 
    * @return The horizontal space.
    */
   protected double getHorizontalSpace() {
@@ -172,6 +182,7 @@ final class Node {
 
   /**
    * The relative center of the horizontal space.
+   * 
    * @return relative center
    */
   protected double getRelativeX() {
@@ -187,7 +198,7 @@ final class Node {
    * The left space of the node. That is the horizontal space left of the nodes
    * horizontal space, i.e. the absolute coordinate of the left side of the
    * nodes overall space.
-   *
+   * 
    * @return The left space.
    */
   protected double getLeftSpace() {
@@ -212,62 +223,79 @@ final class Node {
 
   /**
    * The horizontal center of the nodes rectangle in absolute coordinates.
+   * 
    * @return horizontal center
    */
-  protected double getCenterX() {
+  public double getCenterX() {
     return getLeftSpace() + getRelativeX();
   }
 
   /**
    * The vertical center of the nodes rectangle in absolute coordinates.
+   * 
    * @return vertical center
    */
-  protected double getCenterY() {
+  public double getCenterY() {
     return getTop() + getHeight() * 0.5;
   }
 
   /**
    * The top of the nodes rectangle in absolute coordinates.
+   * 
    * @return top
    */
-  protected double getTop() {
+  public double getTop() {
     return y;
   }
 
   /**
    * The left side of the nodes rectangle in absolute coordinates.
+   * 
    * @return left
    */
-  protected double getLeft() {
+  public double getLeft() {
     return getCenterX() - getWidth() * 0.5;
   }
 
   /**
+   * The right side of the nodes rectangle in absolute coordinates.
+   * 
+   * @return right
+   */
+  public double getRight() {
+    return getCenterX() + getWidth() * 0.5;
+  }
+
+  /**
    * The bottom of the nodes rectangle in absolute coordinates.
+   * 
    * @return bottom
    */
-  protected double getBottom() {
+  public double getBottom() {
     return getTop() + getHeight();
   }
 
   /**
    * The width of the nodes rectangle.
+   * 
    * @return width
    */
-  protected double getWidth() {
+  public double getWidth() {
     return width;
   }
 
   /**
    * The height of the nodes rectangle.
+   * 
    * @return height
    */
-  protected double getHeight() {
+  public double getHeight() {
     return height;
   }
 
   /**
    * The nodes rectangle in absolute coordinates.
+   * 
    * @return the node's rectangle
    */
   public Rectangle2D getRect() {
@@ -276,6 +304,7 @@ final class Node {
 
   /**
    * The center of the nodes rectangle in absolute coordinates.
+   * 
    * @return the node's center
    */
   public Point2D getCenter() {
@@ -284,47 +313,39 @@ final class Node {
 
   /**
    * The left position of the nodes text in absolute coordinates.
+   * 
    * @return left position
    */
-  protected double getTextLeft() {
+  public double getTextLeft() {
     return getLeft() + TEXT_H_SPACE;
   }
 
   /**
    * The bottom position of the nodes text in absolute coordinates.
+   * 
    * @return text's bottom position
    */
-  protected double getTextBottom() {
+  public double getTextBottom() {
     return getBottom() - TEXT_V_SPACE - lower;
   }
 
   /**
-   * Draws the node and its children.
-   *
-   * @param g The graphics context.
-   * @param lc The line color.
-   * @param bc The border color.
-   * @param fc The fill color.
-   * @param tc The text color.
+   * The label of this node.
+   * 
+   * @return The label of this node.
    */
-  public void draw(final Graphics2D g, final Color lc, final Color bc,
-      final Color fc, final Color tc) {
-    final Point2D center = getCenter();
-    g.setColor(lc);
-    for(final Node c : childs) {
-      final Line2D line = new Line2D.Double(center, c.getCenter());
-      g.draw(line);
-    }
-    final Rectangle2D rect = getRect();
-    g.setColor(fc);
-    g.fill(rect);
-    g.setColor(bc);
-    g.draw(rect);
-    g.setColor(tc);
-    g.drawString(label, (float) getTextLeft(), (float) getTextBottom());
-    for(final Node c : childs) {
-      c.draw(g, lc, bc, fc, tc);
-    }
+  public String getLabel() {
+    return label;
+  }
+
+  /**
+   * Draws the node and its children.
+   * 
+   * @param g The graphics context.
+   * @param render The renderer to draw this node's sub tree.
+   */
+  public void draw(final Graphics2D g, final NodeRenderer render) {
+    render.render(g, this);
   }
 
   /** The cached value of the bounding box. */
@@ -332,6 +353,7 @@ final class Node {
 
   /**
    * The bounding box of the subtree given by this node as root of the subtree.
+   * 
    * @return bounding box
    */
   public Rectangle2D getBoundingBox() {
