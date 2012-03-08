@@ -1,14 +1,17 @@
 package de.woerteler.tree;
 
-import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import de.woerteler.charty.ChartParser.Edge;
 import de.woerteler.charty.DisplayMethod;
+import de.woerteler.tree.render.DefaultRenderer;
+import de.woerteler.tree.render.NodeRenderer;
 
 /**
  * Generates a graphical representation of a syntax tree via direct drawing.
@@ -18,24 +21,15 @@ import de.woerteler.charty.DisplayMethod;
 public class ImageDisplay implements DisplayMethod {
 
   /**
-   * The color of the lines.
+   * The renderer that is used to draw the tree.
    */
-  public static final Color LINES = Color.BLACK;
+  public static NodeRenderer renderer = new DefaultRenderer();
 
   /**
-   * The color of the rectangle borders.
+   * The font to draw the labels or <code>null</code> if the default font should
+   * be used.
    */
-  public static final Color BORDER = Color.BLACK;
-
-  /**
-   * The filling color of the rectangles.
-   */
-  public static final Color FILL = Color.ORANGE;
-
-  /**
-   * The text color.
-   */
-  public static final Color TEXT = Color.BLACK;
+  public static Font font = Font.decode("times new roman BOLD 12");
 
   @Override
   public BufferedImage getImage(final Edge e) throws Exception {
@@ -45,8 +39,13 @@ public class ImageDisplay implements DisplayMethod {
         (int) Math.ceil(bbox.getWidth()) + 1,
         (int) Math.ceil(bbox.getHeight()) + 1, BufferedImage.TYPE_INT_ARGB);
     final Graphics2D gfx = (Graphics2D) img.getGraphics();
+    gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON);
+    if(font != null) {
+      gfx.setFont(font);
+    }
     gfx.translate(-bbox.getMinX(), -bbox.getMinY());
-    n.draw(gfx, LINES, BORDER, FILL, TEXT);
+    n.draw(gfx, renderer);
     gfx.dispose();
     return img;
   }
@@ -62,6 +61,9 @@ public class ImageDisplay implements DisplayMethod {
     final BufferedImage dummy = new BufferedImage(1, 1,
         BufferedImage.TYPE_INT_ARGB);
     final Graphics dummyGfx = dummy.getGraphics();
+    if(font != null) {
+      dummyGfx.setFont(font);
+    }
     final FontMetrics fm = dummyGfx.getFontMetrics();
     final Node n = generateNodeStructure(e, null, fm);
     dummyGfx.dispose();
@@ -80,9 +82,15 @@ public class ImageDisplay implements DisplayMethod {
   private Node generateNodeStructure(final Edge e, final Node parent,
       final FontMetrics fm) {
     final Node n = Node.createNode(parent, e.lhs, fm);
-    for(final Edge c : e) {
-      final Node nc = generateNodeStructure(c, n, fm);
-      n.addChild(nc);
+    if(e.hasRealChildren()) {
+      for(final Edge c : e) {
+        final Node nc = generateNodeStructure(c, n, fm);
+        n.addChild(nc);
+      }
+    } else {
+      for(final String label : e.rhs) {
+        n.addChild(Node.createNode(n, label, fm));
+      }
     }
     return n;
   }
