@@ -23,13 +23,13 @@ public class ImageDisplay implements DisplayMethod {
   /**
    * The renderer that is used to draw the tree.
    */
-  public static NodeRenderer RENDERER = new DefaultRenderer();
+  public static NodeRenderer renderer = new DefaultRenderer();
 
   /**
    * The font to draw the labels or <code>null</code> if the default font should
    * be used.
    */
-  public static Font FONT = Font.decode("times new roman BOLD 12");
+  public static Font font = Font.decode("times new roman BOLD 12");
 
   @Override
   public BufferedImage getImage(final Edge e) throws Exception {
@@ -41,11 +41,11 @@ public class ImageDisplay implements DisplayMethod {
     final Graphics2D gfx = (Graphics2D) img.getGraphics();
     gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
         RenderingHints.VALUE_ANTIALIAS_ON);
-    if(FONT != null) {
-      gfx.setFont(FONT);
+    if(font != null) {
+      gfx.setFont(font);
     }
     gfx.translate(-bbox.getMinX(), -bbox.getMinY());
-    n.draw(gfx, RENDERER);
+    n.draw(gfx, renderer);
     gfx.dispose();
     return img;
   }
@@ -61,8 +61,8 @@ public class ImageDisplay implements DisplayMethod {
     final BufferedImage dummy = new BufferedImage(1, 1,
         BufferedImage.TYPE_INT_ARGB);
     final Graphics dummyGfx = dummy.getGraphics();
-    if(FONT != null) {
-      dummyGfx.setFont(FONT);
+    if(font != null) {
+      dummyGfx.setFont(font);
     }
     final FontMetrics fm = dummyGfx.getFontMetrics();
     final Node n = generateNodeStructure(e, null, fm);
