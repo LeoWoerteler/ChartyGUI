@@ -56,7 +56,7 @@ public final class ParseTreeViewer extends JPanel {
   double offY;
 
   /** The scaling of the tree. */
-  double zoom = 1.0;
+  double zoom;
 
   /**
    * Constructor.
