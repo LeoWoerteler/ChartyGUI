@@ -23,7 +23,7 @@ public final class PhraseInput extends JPanel {
   private static final long serialVersionUID = 6734749240715465060L;
 
   /**
-   * The example text that is loaded on start up. Should be parse-able with the
+   * The example text that is loaded on start-up. Should be parse-able with the
    * example grammar.
    */
   public static final String EXAMPLE_TEXT = "Mary killed the man with the tie";
@@ -67,7 +67,7 @@ public final class PhraseInput extends JPanel {
   }
 
   /**
-   * Invopes the parsing.
+   * Invokes the parsing.
    * 
    * @param ctrl Controller
    */

@@ -266,7 +266,7 @@ public final class ParseTreeViewer extends JPanel {
     // newOff = (off - mouse) / zoom * newZoom + mouse
     // newOff = (off - mouse) * factor + mouse
     zoom *= factor;
-    // dose repaint
+    // does repaint
     setOffset((offX - x) * factor + x, (offY - y) * factor + y);
   }
 
