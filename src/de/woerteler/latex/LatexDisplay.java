@@ -34,6 +34,8 @@ public class LatexDisplay implements DisplayMethod {
   @Override
   public Displayer getDisplayer(final Edge e) throws Exception {
     final BufferedImage img = LaTeX.toImage(toLaTeX(e));
+    final Rectangle2D bbox = new Rectangle2D.Double(0, 0, img.getWidth(),
+        img.getHeight());
     return new Displayer() {
 
       @Override
@@ -43,7 +45,7 @@ public class LatexDisplay implements DisplayMethod {
 
       @Override
       public Rectangle2D getBoundingBox() {
-        return new Rectangle2D.Double(0, 0, img.getWidth(), img.getHeight());
+        return bbox;
       }
 
     };

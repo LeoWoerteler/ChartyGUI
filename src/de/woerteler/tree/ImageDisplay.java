@@ -42,7 +42,6 @@ public class ImageDisplay implements DisplayMethod {
         if(font != null) {
           gfx.setFont(font);
         }
-        gfx.translate(-bbox.getMinX(), -bbox.getMinY());
         n.draw(gfx, renderer);
       }
 

@@ -80,8 +80,9 @@ public final class ParseTreeViewer extends JPanel {
         if(dim.width > 2 * MARGIN && dim.height > 2 * MARGIN) {
           final Displayer d = getTree();
           if(d != null) {
+            final Rectangle2D bbox = d.getBoundingBox();
             final Graphics2D g2 = (Graphics2D) gfx.create();
-            g2.translate(offX, offY);
+            g2.translate(offX - bbox.getMinX(), offY - bbox.getMinY());
             d.drawTree(g2);
             g2.dispose();
           }
