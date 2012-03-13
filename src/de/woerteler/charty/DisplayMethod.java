@@ -1,23 +1,22 @@
 package de.woerteler.charty;
 
-import java.awt.image.BufferedImage;
-
 import de.woerteler.charty.ChartParser.Edge;
 
 /**
  * Defines a callback for different {@link Edge} drawing methods.
- *
- * @author Joschi
+ * 
+ * @author Joschi <josua.krause@googlemail.com>
  */
 public interface DisplayMethod {
 
   /**
-   * Draws a graphical representation of the given syntax tree.
-   *
+   * Returns a graphical representation drawer of the given syntax tree.
+   * 
    * @param e The root node/edge of the syntax tree.
-   * @return A {@link BufferedImage} representing the syntax tree.
-   * @throws Exception If an exception occurs during drawing.
+   * @return A {@link Displayer} to draw the syntax tree.
+   * @throws Exception If an exception occurs during the generation of the
+   *           drawer.
    */
-  BufferedImage getImage(Edge e) throws Exception;
+  Displayer getDisplayer(Edge e) throws Exception;
 
 }

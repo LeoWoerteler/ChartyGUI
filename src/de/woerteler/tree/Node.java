@@ -12,8 +12,8 @@ import java.util.List;
 
 /**
  * Provides a visual representation of a syntax tree.
- *
- * @author Joschi
+ * 
+ * @author Joschi <josua.krause@googlemail.com>
  */
 final class Node {
 
@@ -39,7 +39,7 @@ final class Node {
 
   /**
    * Creates a single new node.
-   *
+   * 
    * @param parent The parent of the node or <code>null</code> if it is the root
    *          node.
    * @param str The string that will be the label.
@@ -57,8 +57,8 @@ final class Node {
     if(parent == null) {
       return new Node(null, width, height, 0, str, lower);
     }
-    return new Node(parent, width, height, parent.y + parent.height +
-        VERTICAL_SPACE, str, lower);
+    return new Node(parent, width, height, parent.y + parent.height
+        + VERTICAL_SPACE, str, lower);
   }
 
   /**
@@ -99,7 +99,7 @@ final class Node {
 
   /**
    * Creates a node.
-   *
+   * 
    * @param par The parent of the node.
    * @param w The width of the node.
    * @param h The height of the node.
@@ -108,8 +108,8 @@ final class Node {
    * @param bot The distance from the bottom of the node to the bottom of the
    *          text given by the font metric.
    */
-  private Node(final Node par, final double w, final double h, final double top,
-      final String str, final double bot) {
+  private Node(final Node par, final double w, final double h,
+      final double top, final String str, final double bot) {
     parent = par;
     lower = bot;
     label = str;
@@ -153,7 +153,7 @@ final class Node {
   /**
    * The horizontal space of the node. That is the maximum of the width of the
    * node and the overall horizontal space of its descendants.
-   *
+   * 
    * @return The horizontal space.
    */
   protected double getHorizontalSpace() {
@@ -187,7 +187,7 @@ final class Node {
    * The left space of the node. That is the horizontal space left of the nodes
    * horizontal space, i.e. the absolute coordinate of the left side of the
    * nodes overall space.
-   *
+   * 
    * @return The left space.
    */
   protected double getLeftSpace() {
@@ -300,7 +300,7 @@ final class Node {
 
   /**
    * Draws the node and its children.
-   *
+   * 
    * @param g The graphics context.
    * @param lc The line color.
    * @param bc The border color.

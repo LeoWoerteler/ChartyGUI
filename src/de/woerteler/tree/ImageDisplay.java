@@ -9,11 +9,12 @@ import java.awt.image.BufferedImage;
 
 import de.woerteler.charty.ChartParser.Edge;
 import de.woerteler.charty.DisplayMethod;
+import de.woerteler.charty.Displayer;
 
 /**
  * Generates a graphical representation of a syntax tree via direct drawing.
- *
- * @author Joschi
+ * 
+ * @author Joschi <josua.krause@googlemail.com>
  */
 public class ImageDisplay implements DisplayMethod {
 
@@ -38,22 +39,28 @@ public class ImageDisplay implements DisplayMethod {
   public static final Color TEXT = Color.BLACK;
 
   @Override
-  public BufferedImage getImage(final Edge e) throws Exception {
+  public Displayer getDisplayer(final Edge e) throws Exception {
     final Node n = generateNodeStructure(e);
     final Rectangle2D bbox = n.getBoundingBox();
-    final BufferedImage img = new BufferedImage(
-        (int) Math.ceil(bbox.getWidth()) + 1,
-        (int) Math.ceil(bbox.getHeight()) + 1, BufferedImage.TYPE_INT_ARGB);
-    final Graphics2D gfx = (Graphics2D) img.getGraphics();
-    gfx.translate(-bbox.getMinX(), -bbox.getMinY());
-    n.draw(gfx, LINES, BORDER, FILL, TEXT);
-    gfx.dispose();
-    return img;
+    return new Displayer() {
+
+      @Override
+      public void drawTree(final Graphics2D gfx) {
+        gfx.translate(-bbox.getMinX(), -bbox.getMinY());
+        n.draw(gfx, LINES, BORDER, FILL, TEXT);
+      }
+
+      @Override
+      public Rectangle2D getBoundingBox() {
+        return bbox;
+      }
+
+    };
   }
 
   /**
    * Builds a {@link Node} structure out of syntax tree edges.
-   *
+   * 
    * @param e The root node.
    * @return A draw-able node structure.
    */
@@ -71,7 +78,7 @@ public class ImageDisplay implements DisplayMethod {
 
   /**
    * Builds a {@link Node} structure out of parts of a syntax tree.
-   *
+   * 
    * @param e A syntax tree node.
    * @param parent The parent of the current node.
    * @param fm The font metrics for displaying the labels correctly.

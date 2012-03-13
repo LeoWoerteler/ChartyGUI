@@ -5,22 +5,26 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import de.woerteler.util.ImageUtils;
+import de.woerteler.charty.Displayer;
 
 /**
  * Displays the parse tree(s) of the currently parsed expression.
- *
+ * 
  * @author Leo Woerteler
+ * @author Joschi <josua.krause@googlemail.com>
  */
 public final class ParseTreeViewer extends JPanel {
 
@@ -34,25 +38,31 @@ public final class ParseTreeViewer extends JPanel {
   /** Right arrow button. */
   private final JButton right;
 
-  /** Parse tree image. */
-  private BufferedImage tree;
+  /** Parse tree displayer. */
+  private Displayer tree;
 
-  /** The image panel. */
-  private final JPanel image;
+  /** The display panel. */
+  private final JComponent display;
 
   /** Margin around the image. */
   private static final int MARGIN = 5;
 
+  /** The x offset of the tree. */
+  double offX;
+
+  /** The y offset of the tree. */
+  double offY;
+
   /**
    * Constructor.
-   *
+   * 
    * @param ctrl controller
    */
   ParseTreeViewer(final Controller ctrl) {
     super(new BorderLayout());
     final JPanel nav = new JPanel(new BorderLayout());
 
-    image = new JPanel() {
+    display = new JComponent() {
 
       /** Serial version UID. */
       private static final long serialVersionUID = -7709453016860715840L;
@@ -61,23 +71,71 @@ public final class ParseTreeViewer extends JPanel {
       protected void paintComponent(final Graphics g) {
         final Dimension dim = getSize();
         g.setColor(Color.WHITE);
-        g.fillRect(0, 0, dim.width, dim.height);
-        if (dim.width > 2 * MARGIN && dim.height > 2 * MARGIN) {
-          final BufferedImage i = getTree();
-          if (i != null) {
-            final int nw = dim.width - 2 * MARGIN;
-            final int nh = dim.height - 2 * MARGIN;
-            final Image scaled = ImageUtils.scaleToFit(i, nw, nh);
-            g.drawImage(scaled, (nw - scaled.getWidth(null)) / 2
-                + MARGIN, (nh - scaled.getHeight(null)) / 2
-                + MARGIN, null);
+        g.fillRect(0, 0, dim.width + 1, dim.height + 1);
+        if(dim.width > 2 * MARGIN && dim.height > 2 * MARGIN) {
+          final Displayer d = getTree();
+          if(d != null) {
+            final Graphics2D g2 = (Graphics2D) g.create();
+            g2.translate(offX, offY);
+            d.drawTree(g2);
+            g2.dispose();
           }
         }
-
       }
-    };
 
-    add(image, BorderLayout.CENTER);
+    };
+    final MouseAdapter mouse = new MouseAdapter() {
+
+      private boolean drag;
+
+      private int sx;
+
+      private int sy;
+
+      private double origX;
+
+      private double origY;
+
+      @Override
+      public void mousePressed(final MouseEvent e) {
+        if(e.getButton() == MouseEvent.BUTTON1) {
+          sx = e.getX();
+          sy = e.getY();
+          origX = getOffsetX();
+          origY = getOffsetY();
+          drag = true;
+        }
+      }
+
+      @Override
+      public void mouseDragged(final MouseEvent e) {
+        if(drag) {
+          move(e.getX(), e.getY());
+        }
+      }
+
+      @Override
+      public void mouseReleased(final MouseEvent e) {
+        if(drag) {
+          move(e.getX(), e.getY());
+          drag = false;
+        }
+      }
+
+      /**
+       * sets the offset according to the mouse position
+       * 
+       * @param x the mouse x position
+       * @param y the mouse y position
+       */
+      private void move(final int x, final int y) {
+        setOffset(origX + (x - sx), origY + (y - sy));
+      }
+
+    };
+    display.addMouseListener(mouse);
+    display.addMouseMotionListener(mouse);
+    add(display, BorderLayout.CENTER);
 
     label = new JLabel("nothing to show");
     label.setHorizontalAlignment(SwingConstants.CENTER);
@@ -108,13 +166,13 @@ public final class ParseTreeViewer extends JPanel {
 
   /**
    * Displays the given parse tree.
-   *
-   * @param img parse tree
+   * 
+   * @param disp parse tree
    * @param pos current position
    * @param num current number of parse trees
    */
-  void showParseTree(final BufferedImage img, final int pos, final int num) {
-    if (img == null) {
+  void showParseTree(final Displayer disp, final int pos, final int num) {
+    if(disp == null) {
       label.setText("nothing to show");
       left.setEnabled(false);
       right.setEnabled(false);
@@ -123,25 +181,56 @@ public final class ParseTreeViewer extends JPanel {
       left.setEnabled(pos > 1);
       right.setEnabled(pos < num);
     }
-    setTree(img);
+    setTree(disp);
   }
 
   /**
-   * Sets the tree image.
-   *
+   * Sets the tree displayer.
+   * 
    * @param t tree
    */
-  private synchronized void setTree(final BufferedImage t) {
+  private synchronized void setTree(final Displayer t) {
     tree = t;
-    repaint();
+    final Dimension dim = getSize();
+    final int nw = dim.width - 2 * MARGIN;
+    final int nh = dim.height - 2 * MARGIN;
+    final Rectangle2D bbox = tree.getBoundingBox();
+    // does repaint
+    setOffset(MARGIN + (nw - bbox.getWidth()) / 2,
+        MARGIN + (nh - bbox.getHeight()) / 2);
   }
 
   /**
    * Gets the currently shown tree.
-   *
+   * 
    * @return tree
    */
-  synchronized BufferedImage getTree() {
+  synchronized Displayer getTree() {
     return tree;
   }
+
+  /**
+   * @param x the x offset.
+   * @param y the y offset.
+   */
+  public void setOffset(final double x, final double y) {
+    offX = x;
+    offY = y;
+    display.repaint();
+  }
+
+  /**
+   * @return the x offset
+   */
+  public double getOffsetX() {
+    return offX;
+  }
+
+  /**
+   * @return the y offset
+   */
+  public double getOffsetY() {
+    return offY;
+  }
+
 }

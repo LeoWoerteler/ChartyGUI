@@ -14,7 +14,7 @@ import javax.swing.text.Document;
 
 /**
  * This {@link JPanel} contains the parsed phrase.
- *
+ * 
  * @author Leo Woerteler
  */
 public final class PhraseInput extends JPanel {
@@ -22,12 +22,18 @@ public final class PhraseInput extends JPanel {
   /** Serial Version UID. */
   private static final long serialVersionUID = 6734749240715465060L;
 
+  /**
+   * The example text that is loaded on start up. Should be parse-able with the
+   * example grammar.
+   */
+  public static final String EXAMPLE_TEXT = "Mary killed the man with the tie";
+
   /** The input text field. */
   private final JTextField input;
 
   /**
    * Constructor.
-   *
+   * 
    * @param ctrl controller
    */
   PhraseInput(final Controller ctrl) {
@@ -37,11 +43,12 @@ public final class PhraseInput extends JPanel {
     input.addKeyListener(new KeyAdapter() {
       @Override
       public void keyPressed(final KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+        if(e.getKeyCode() == KeyEvent.VK_ENTER) {
           parse(ctrl);
         }
       }
     });
+    input.setText(EXAMPLE_TEXT);
     add(input, BorderLayout.CENTER);
 
     final JButton parse = new JButton("Parse");
@@ -61,14 +68,14 @@ public final class PhraseInput extends JPanel {
 
   /**
    * Invopes the parsing.
-   *
+   * 
    * @param ctrl Controller
    */
   void parse(final Controller ctrl) {
     final Document doc = input.getDocument();
     try {
       ctrl.parse(doc.getText(0, doc.getLength()));
-    } catch (final BadLocationException e1) {
+    } catch(final BadLocationException e1) {
       e1.printStackTrace();
     }
   }

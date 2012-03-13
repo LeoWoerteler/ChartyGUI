@@ -1,6 +1,5 @@
 package de.woerteler.gui;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -9,11 +8,12 @@ import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import de.woerteler.charty.Displayer;
 import de.woerteler.charty.ParseTree;
 
 /**
  * The GUI application's data model.
- *
+ * 
  * @author Leo Woerteler
  */
 public final class DataModel {
@@ -23,7 +23,7 @@ public final class DataModel {
   /** Data of the info table. */
   final ArrayList<String[]> tableData = new ArrayList<String[]>();
   /** Column names. */
-  final String[] columns = { "Rule", "Action" };
+  final String[] columns = { "Rule", "Action"};
 
   /** The Document for the grammar editor. */
   private Document grammar;
@@ -42,7 +42,7 @@ public final class DataModel {
 
   /**
    * Constructor.
-   *
+   * 
    * @param g GUI object, used for updating the title
    */
   public DataModel(final ChartyGUI g) {
@@ -54,14 +54,14 @@ public final class DataModel {
 
       @Override
       public String getValueAt(final int row, final int column) {
-        synchronized (this) {
+        synchronized(this) {
           return tableData.get(row)[column];
         }
       }
 
       @Override
       public int getRowCount() {
-        synchronized (this) {
+        synchronized(this) {
           return tableData.size();
         }
       }
@@ -80,9 +80,8 @@ public final class DataModel {
 
   /**
    * Sets the grammar viewer's document.
-   *
-   * @param doc
-   *            document
+   * 
+   * @param doc document
    */
   void setDocument(final Document doc) {
     grammar = doc;
@@ -90,7 +89,7 @@ public final class DataModel {
 
   /**
    * Getter for the info table model.
-   *
+   * 
    * @return table model
    */
   TableModel getInfoTableModel() {
@@ -99,43 +98,41 @@ public final class DataModel {
 
   /**
    * Adds one line to the info table.
-   *
-   * @param rule
-   *            rule that produced the output
-   * @param desc
-   *            description
+   * 
+   * @param rule rule that produced the output
+   * @param desc description
    */
   void addInfo(final String rule, final String desc) {
-    synchronized (infoTableModel) {
+    synchronized(infoTableModel) {
       final int len = tableData.size();
-      tableData.add(new String[] { rule, desc });
+      tableData.add(new String[] { rule, desc});
       infoTableModel.fireTableRowsInserted(len, len);
     }
   }
 
   /**
    * Sets the currently opened file.
-   *
+   * 
    * @param f file
    * @param contents contents of the file
    */
   synchronized void setOpenedFile(final File f, final String contents) {
     opened = f;
-    if (f != null) {
+    if(f != null) {
       gui.setTitle(f.getPath());
     }
     try {
       grammar.remove(0, grammar.getLength());
       grammar.insertString(0, contents, null);
       gui.rewindGrammar();
-    } catch (final BadLocationException e) {
+    } catch(final BadLocationException e) {
       e.printStackTrace();
     }
   }
 
   /**
    * Getter for the currently opened file.
-   *
+   * 
    * @return opened file
    */
   synchronized File getOpenedFile() {
@@ -144,7 +141,7 @@ public final class DataModel {
 
   /**
    * Sets the current parse trees.
-   *
+   * 
    * @param ts trees
    */
   synchronized void setParseTrees(final ParseTree[] ts) {
@@ -153,7 +150,7 @@ public final class DataModel {
 
   /**
    * Getter for the parse trees.
-   *
+   * 
    * @return parse trees
    */
   synchronized ParseTree[] getParseTrees() {
@@ -162,19 +159,18 @@ public final class DataModel {
 
   /**
    * Sets a new position in the parse trees.
-   *
+   * 
    * @param pos new position
-   * @param img
-   *            image to show
+   * @param disp the displayer
    */
-  synchronized void newParseTreePos(final int pos, final BufferedImage img) {
+  synchronized void newParseTreePos(final int pos, final Displayer disp) {
     parseTreePos = pos;
-    gui.showParseTree(img, pos + 1, trees.length);
+    gui.showParseTree(disp, pos + 1, trees.length);
   }
 
   /**
    * Getter for the current position.
-   *
+   * 
    * @return position
    */
   int getParseTreePos() {
@@ -183,23 +179,23 @@ public final class DataModel {
 
   /**
    * Returns the grammar definitions.
-   *
+   * 
    * @return the grammar definitions
    */
   String getGrammar() {
     try {
       return grammar.getText(0, grammar.getLength());
-    } catch (final BadLocationException e) {
+    } catch(final BadLocationException e) {
       return "";
     }
   }
 
   /** Clears the info panel. */
   void clearInfo() {
-    synchronized (infoTableModel) {
+    synchronized(infoTableModel) {
       final int size = tableData.size();
       tableData.clear();
-      if (size > 0) {
+      if(size > 0) {
         infoTableModel.fireTableRowsDeleted(0, size - 1);
       }
     }

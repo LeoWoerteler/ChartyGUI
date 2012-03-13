@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Menu;
 import java.awt.MenuBar;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,11 +22,12 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import de.woerteler.charty.Displayer;
 import de.woerteler.util.IOUtils;
 
 /**
  * The JFrame containing the GUI application.
- *
+ * 
  * @author Leo Woerteler
  */
 public final class ChartyGUI extends JFrame {
@@ -44,7 +44,7 @@ public final class ChartyGUI extends JFrame {
   private static final int WINDOW_HEIGHT = 768;
 
   /** Icon sizes provided. */
-  private static final int[] ICON_SIZES = { 16, 32, 64, 128, 256 };
+  private static final int[] ICON_SIZES = { 16, 32, 64, 128, 256};
 
   /** Cache for icons. */
   private static final HashMap<String, ImageIcon> ICON_MAP;
@@ -69,12 +69,11 @@ public final class ChartyGUI extends JFrame {
     // load logo
     final ArrayList<Image> icons = new ArrayList<Image>();
     try {
-      for (final int size : ICON_SIZES) {
-        final InputStream in = IOUtils.getResource("logo/" + size
-            + ".png");
+      for(final int size : ICON_SIZES) {
+        final InputStream in = IOUtils.getResource("logo/" + size + ".png");
         icons.add(ImageIO.read(in));
       }
-    } catch (final IOException e) {
+    } catch(final IOException e) {
       e.printStackTrace();
     }
     setIconImages(icons);
@@ -108,7 +107,7 @@ public final class ChartyGUI extends JFrame {
       final InputStream psg = IOUtils.getResource("PSG1.txt");
       final byte[] contents = IOUtils.readFully(psg);
       model.setOpenedFile(null, new String(contents, Charset.forName("UTF-8")));
-    } catch (final IOException e) {
+    } catch(final IOException e) {
       e.printStackTrace();
     }
 
@@ -131,17 +130,17 @@ public final class ChartyGUI extends JFrame {
 
   /**
    * Main method starting the GUI.
-   *
+   * 
    * @param args ignored
    */
   public static void main(final String[] args) {
     try {
       UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus."
           + "NimbusLookAndFeel");
-    } catch (final Exception e) {
+    } catch(final Exception e) {
       try {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      } catch (final Exception e2) {
+      } catch(final Exception e2) {
         e2.printStackTrace();
       }
     }
@@ -150,18 +149,16 @@ public final class ChartyGUI extends JFrame {
 
   /**
    * Retrieves the icon with the given name.
-   *
-   * @param name
-   *            name of the icon
+   * 
+   * @param name name of the icon
    * @return icon
    */
   static ImageIcon icon(final String name) {
-    if (!ICON_MAP.containsKey(name)) {
+    if(!ICON_MAP.containsKey(name)) {
       try {
-        final InputStream in = IOUtils.getResource("icons/" + name
-            + ".png");
+        final InputStream in = IOUtils.getResource("icons/" + name + ".png");
         ICON_MAP.put(name, new ImageIcon(ImageIO.read(in)));
-      } catch (final IOException e) {
+      } catch(final IOException e) {
         throw new RuntimeException(e);
       }
     }
@@ -170,7 +167,7 @@ public final class ChartyGUI extends JFrame {
 
   @Override
   public void setTitle(final String title) {
-    if (title == null) {
+    if(title == null) {
       super.setTitle(NAME);
     } else {
       super.setTitle(NAME + ": " + title);
@@ -179,9 +176,8 @@ public final class ChartyGUI extends JFrame {
 
   /**
    * Shows an error message to the user.
-   *
-   * @param msg
-   *            message
+   * 
+   * @param msg message
    */
   void showError(final String msg) {
     SwingUtilities.invokeLater(new Runnable() {
@@ -195,15 +191,15 @@ public final class ChartyGUI extends JFrame {
 
   /**
    * Shows a file chooser dialog to the user.
-   *
+   * 
    * @param dir the starting directory
-   * @return the chosen file or {@code null}, if noching was chosen
+   * @return the chosen file or {@code null}, if nothing was chosen
    */
   File chooseFile(final File dir) {
     final JFileChooser choose = new JFileChooser(dir);
     choose.setMultiSelectionEnabled(false);
     choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    if (choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+    if(choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
       return choose.getSelectedFile();
     }
     return null;
@@ -211,15 +207,12 @@ public final class ChartyGUI extends JFrame {
 
   /**
    * Displays the given parse tree.
-   *
-   * @param tree
-   *            parse tree
-   * @param pos
-   *            current position
-   * @param num
-   *            current number of parse trees
+   * 
+   * @param tree parse tree
+   * @param pos current position
+   * @param num current number of parse trees
    */
-  void showParseTree(final BufferedImage tree, final int pos, final int num) {
+  void showParseTree(final Displayer tree, final int pos, final int num) {
     treeViewer.showParseTree(tree, pos, num);
   }
 
