@@ -125,7 +125,9 @@ public final class ChartyGUI extends JFrame {
     pack();
     input.focus();
 
+    // to the center of the screen
     setLocationRelativeTo(null);
+    // shows unresolved / cycling threads -- safer close
     setDefaultCloseOperation(DISPOSE_ON_CLOSE);
   }
 
