@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.JButton;
@@ -46,13 +47,16 @@ public final class ParseTreeViewer extends JPanel {
   private final JComponent display;
 
   /** Margin around the image. */
-  private static final int MARGIN = 5;
+  private static final int MARGIN = 10;
 
   /** The x offset of the tree. */
   double offX;
 
   /** The y offset of the tree. */
   double offY;
+
+  /** The scaling of the tree. */
+  double zoom = 1.0;
 
   /**
    * Constructor.
@@ -80,9 +84,9 @@ public final class ParseTreeViewer extends JPanel {
         if(dim.width > 2 * MARGIN && dim.height > 2 * MARGIN) {
           final Displayer d = getTree();
           if(d != null) {
-            final Rectangle2D bbox = d.getBoundingBox();
             final Graphics2D g2 = (Graphics2D) gfx.create();
-            g2.translate(offX - bbox.getMinX(), offY - bbox.getMinY());
+            g2.translate(offX, offY);
+            g2.scale(zoom, zoom);
             d.drawTree(g2);
             g2.dispose();
           }
@@ -95,9 +99,9 @@ public final class ParseTreeViewer extends JPanel {
 
       private boolean drag;
 
-      private int sx;
+      private int startx;
 
-      private int sy;
+      private int starty;
 
       private double origX;
 
@@ -106,8 +110,8 @@ public final class ParseTreeViewer extends JPanel {
       @Override
       public void mousePressed(final MouseEvent e) {
         if(e.getButton() == MouseEvent.BUTTON1) {
-          sx = e.getX();
-          sy = e.getY();
+          startx = e.getX();
+          starty = e.getY();
           origX = getOffsetX();
           origY = getOffsetY();
           drag = true;
@@ -136,12 +140,18 @@ public final class ParseTreeViewer extends JPanel {
        * @param y the mouse y position
        */
       private void move(final int x, final int y) {
-        setOffset(origX + (x - sx), origY + (y - sy));
+        setOffset(origX + (x - startx), origY + (y - starty));
+      }
+
+      @Override
+      public void mouseWheelMoved(final MouseWheelEvent e) {
+        zoomTo(e.getX(), e.getY(), e.getWheelRotation());
       }
 
     };
     display.addMouseListener(mouse);
     display.addMouseMotionListener(mouse);
+    display.addMouseWheelListener(mouse);
     add(display, BorderLayout.CENTER);
 
     label = new JLabel("nothing to show");
@@ -198,13 +208,18 @@ public final class ParseTreeViewer extends JPanel {
    */
   private synchronized void setTree(final Displayer t) {
     tree = t;
-    final Dimension dim = getSize();
+    final Dimension dim = display.getSize();
     final int nw = dim.width - 2 * MARGIN;
     final int nh = dim.height - 2 * MARGIN;
     final Rectangle2D bbox = tree.getBoundingBox();
+    zoom = 1.0;
     // does repaint
-    setOffset(MARGIN + (nw - bbox.getWidth()) / 2,
-        MARGIN + (nh - bbox.getHeight()) / 2);
+    setOffset(MARGIN + (nw - bbox.getWidth()) / 2 - bbox.getMinX(), MARGIN
+        + (nh - bbox.getHeight()) / 2 - bbox.getMinY());
+    final double rw = nw / bbox.getWidth();
+    final double rh = nh / bbox.getHeight();
+    final double factor = rw < rh ? rw : rh;
+    zoomTo(dim.width / 2.0, dim.height / 2.0, factor);
   }
 
   /**
@@ -224,6 +239,35 @@ public final class ParseTreeViewer extends JPanel {
     offX = x;
     offY = y;
     display.repaint();
+  }
+
+  /**
+   * Zooms to the on screen (in components coordinates) position.
+   * 
+   * @param x The x coordinate.
+   * @param y The y coordinate.
+   * @param zooming The amount of zooming.
+   */
+  public void zoomTo(final double x, final double y, final int zooming) {
+    final double factor = Math.pow(1.1, -zooming);
+    zoomTo(x, y, factor);
+  }
+
+  /**
+   * Zooms to the on screen (in components coordinates) position.
+   * 
+   * @param x The x coordinate.
+   * @param y The y coordinate.
+   * @param factor The factor to alter the zoom level.
+   */
+  public void zoomTo(final double x, final double y, final double factor) {
+    // P = (off - mouse) / zoom
+    // P = (newOff - mouse) / newZoom
+    // newOff = (off - mouse) / zoom * newZoom + mouse
+    // newOff = (off - mouse) * factor + mouse
+    zoom *= factor;
+    // dose repaint
+    setOffset((offX - x) * factor + x, (offY - y) * factor + y);
   }
 
   /**
