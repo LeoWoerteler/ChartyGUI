@@ -64,7 +64,6 @@ public final class ChartyGUI extends JFrame {
   private ChartyGUI() {
     setTitle(null);
     setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-    setDefaultCloseOperation(EXIT_ON_CLOSE);
 
     // load logo
     final ArrayList<Image> icons = new ArrayList<Image>();
@@ -124,8 +123,10 @@ public final class ChartyGUI extends JFrame {
 
     // display the window
     pack();
-    setVisible(true);
     input.focus();
+
+    setLocationRelativeTo(null);
+    setDefaultCloseOperation(DISPOSE_ON_CLOSE);
   }
 
   /**
@@ -144,7 +145,7 @@ public final class ChartyGUI extends JFrame {
         e2.printStackTrace();
       }
     }
-    new ChartyGUI();
+    new ChartyGUI().setVisible(true);
   }
 
   /**

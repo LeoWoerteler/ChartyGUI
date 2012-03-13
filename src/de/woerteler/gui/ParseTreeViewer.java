@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -69,18 +70,23 @@ public final class ParseTreeViewer extends JPanel {
 
       @Override
       protected void paintComponent(final Graphics g) {
+        final Graphics2D gfx = (Graphics2D) g.create();
+        gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON);
         final Dimension dim = getSize();
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, dim.width + 1, dim.height + 1);
+        gfx.setColor(Color.WHITE);
+        // drawn rectangle is 1 smaller in every direction
+        gfx.fillRect(0, 0, dim.width + 1, dim.height + 1);
         if(dim.width > 2 * MARGIN && dim.height > 2 * MARGIN) {
           final Displayer d = getTree();
           if(d != null) {
-            final Graphics2D g2 = (Graphics2D) g.create();
+            final Graphics2D g2 = (Graphics2D) gfx.create();
             g2.translate(offX, offY);
             d.drawTree(g2);
             g2.dispose();
           }
         }
+        gfx.dispose();
       }
 
     };
