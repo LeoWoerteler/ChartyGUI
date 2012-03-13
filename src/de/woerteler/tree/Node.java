@@ -13,7 +13,7 @@ import de.woerteler.tree.render.NodeRenderer;
 /**
  * Provides a visual representation of a syntax tree.
  * 
- * @author Joschi
+ * @author Joschi <josua.krause@googlemail.com>
  */
 public final class Node {
 
