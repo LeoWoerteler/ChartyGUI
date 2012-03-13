@@ -19,7 +19,7 @@ public class DefaultRenderer implements NodeRenderer {
   /**
    * The stroke to draw lines.
    */
-  public static Stroke STROKE = new BasicStroke(1.2f);
+  public static Stroke stroke = new BasicStroke(1.2f);
 
   @Override
   public void render(final Graphics2D g, final Node root) {
@@ -31,7 +31,7 @@ public class DefaultRenderer implements NodeRenderer {
     for(final Node c : root.getChilds()) {
       final Line2D line = new Line2D.Double(x, y, c.getCenterX(), c.getTop());
       final Graphics2D g2 = (Graphics2D) g.create();
-      g2.setStroke(STROKE);
+      g2.setStroke(stroke);
       g2.draw(line);
       g2.dispose();
       render(g, c);
