@@ -28,6 +28,7 @@
     <module name="LineLength">
       <property name="ignorePattern" value="^import"/>
       <property name="tabWidth" value="2"/>
+      <property name="max" value="90"/>
     </module>
     <module name="EmptyForIteratorPad"/>
     <module name="MethodParamPad"/>
@@ -107,7 +108,7 @@
     <module name="MethodTypeParameterName"/>
     <module name="GenericWhitespace"/>
     <module name="Regexp">
-      <property name="format" value="[ \t]+$"/>
+      <property name="format" value="(^|[^*])[ \t]+$"/>
       <property name="message" value="Trailing whitespace"/>
       <property name="illegalPattern" value="true"/>
     </module>

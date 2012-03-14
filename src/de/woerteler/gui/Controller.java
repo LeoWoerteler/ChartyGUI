@@ -1,12 +1,12 @@
 package de.woerteler.gui;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 
 import de.woerteler.charty.ChartParser;
+import de.woerteler.charty.Displayer;
 import de.woerteler.charty.Grammar;
 import de.woerteler.charty.GrammarSyntaxException;
 import de.woerteler.charty.ParseTree;
@@ -17,7 +17,7 @@ import de.woerteler.util.IOUtils;
 
 /**
  * The controller class.
- *
+ * 
  * @author Leo Woerteler
  */
 public final class Controller implements ParserInfoListener {
@@ -33,7 +33,7 @@ public final class Controller implements ParserInfoListener {
 
   /**
    * Constructor taking the application's {@link DataModel model}.
-   *
+   * 
    * @param mod data model
    * @param g gui
    */
@@ -80,7 +80,7 @@ public final class Controller implements ParserInfoListener {
 
   /**
    * Navigates within the parse trees.
-   *
+   * 
    * @param next direction flag
    */
   void navigate(final boolean next) {
@@ -99,8 +99,8 @@ public final class Controller implements ParserInfoListener {
     }
 
     try {
-      final BufferedImage img = trees[npos].getImage();
-      model.newParseTreePos(npos, img);
+      final Displayer disp = trees[npos].getDisplayer();
+      model.newParseTreePos(npos, disp);
     } catch(final Exception e) {
       gui.showError("Couldn't open parse tree:\n" + e.getMessage());
     }
@@ -108,7 +108,7 @@ public final class Controller implements ParserInfoListener {
 
   /**
    * Parses the given phrase.
-   *
+   * 
    * @param text phrase
    */
   void parse(final String text) {
@@ -139,8 +139,8 @@ public final class Controller implements ParserInfoListener {
           }
 
           try {
-            final BufferedImage img = trees[0].getImage();
-            model.newParseTreePos(0, img);
+            final Displayer disp = trees[0].getDisplayer();
+            model.newParseTreePos(0, disp);
           } catch(final Exception e) {
             model.newParseTreePos(0, null);
             gui.showError("Couldn't open parse tree:\n" + e.getMessage());

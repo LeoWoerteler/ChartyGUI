@@ -11,7 +11,7 @@ import de.woerteler.tree.Node;
 /**
  * A simple colorful node renderer.
  * 
- * @author Joschi
+ * @author Joschi <josua.krause@googlemail.com>
  */
 public class SimpleRenderer implements NodeRenderer {
 

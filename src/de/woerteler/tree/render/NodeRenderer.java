@@ -7,7 +7,7 @@ import de.woerteler.tree.Node;
 /**
  * Renders a syntax tree.
  * 
- * @author Joschi
+ * @author Joschi <josua.krause@googlemail.com>
  */
 public interface NodeRenderer {
 
