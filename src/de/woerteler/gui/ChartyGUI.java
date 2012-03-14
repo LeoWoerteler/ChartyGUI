@@ -1,6 +1,7 @@
 package de.woerteler.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Menu;
@@ -183,10 +184,11 @@ public final class ChartyGUI extends JFrame {
    * @param msg message
    */
   void showError(final String msg) {
+    final Component cgui = this;
     SwingUtilities.invokeLater(new Runnable() {
       @Override
       public void run() {
-        JOptionPane.showMessageDialog(ChartyGUI.this, msg, "Error",
+        JOptionPane.showMessageDialog(cgui, msg, "Error",
             JOptionPane.ERROR_MESSAGE);
       }
     });
@@ -202,10 +204,8 @@ public final class ChartyGUI extends JFrame {
     final JFileChooser choose = new JFileChooser(dir);
     choose.setMultiSelectionEnabled(false);
     choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    if(choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-      return choose.getSelectedFile();
-    }
-    return null;
+    return choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION ? choose.getSelectedFile()
+            : null;
   }
 
   /**

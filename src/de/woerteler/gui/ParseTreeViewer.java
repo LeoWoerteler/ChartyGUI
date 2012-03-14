@@ -219,7 +219,7 @@ public final class ParseTreeViewer extends JPanel {
     final double rw = nw / bbox.getWidth();
     final double rh = nh / bbox.getHeight();
     final double factor = rw < rh ? rw : rh;
-    zoomTo(dim.width / 2.0, dim.height / 2.0, factor);
+    zoom(factor);
   }
 
   /**
@@ -270,6 +270,16 @@ public final class ParseTreeViewer extends JPanel {
     zoom *= factor;
     // does repaint
     setOffset((offX - x) * factor + x, (offY - y) * factor + y);
+  }
+
+  /**
+   * Zooms towards the center of the display area.
+   * 
+   * @param factor The zoom factor.
+   */
+  public void zoom(final double factor) {
+    final Dimension dim = display.getSize();
+    zoomTo(dim.width / 2.0, dim.height / 2.0, factor);
   }
 
   /**

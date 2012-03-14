@@ -6,6 +6,7 @@ import java.io.StringReader;
 import java.nio.charset.Charset;
 
 import de.woerteler.charty.ChartParser;
+import de.woerteler.charty.DisplayMethod;
 import de.woerteler.charty.Displayer;
 import de.woerteler.charty.Grammar;
 import de.woerteler.charty.GrammarSyntaxException;
@@ -13,6 +14,7 @@ import de.woerteler.charty.ParseTree;
 import de.woerteler.charty.ParserException;
 import de.woerteler.charty.ParserInfoListener;
 import de.woerteler.charty.Tokenizer;
+import de.woerteler.tree.ImageDisplay;
 import de.woerteler.util.IOUtils;
 
 /**
@@ -31,6 +33,9 @@ public final class Controller implements ParserInfoListener {
   /** Lock for the parse method. */
   final Object parseLock = new Object();
 
+  /** The method to display the syntax tree. */
+  DisplayMethod method = new ImageDisplay();
+
   /**
    * Constructor taking the application's {@link DataModel model}.
    * 
@@ -40,6 +45,25 @@ public final class Controller implements ParserInfoListener {
   Controller(final ChartyGUI g, final DataModel mod) {
     gui = g;
     model = mod;
+  }
+
+  /**
+   * Setter.
+   * 
+   * @param method The display method.
+   */
+  public void setMethod(final DisplayMethod method) {
+    this.method = method;
+    refresh();
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return The current display method.
+   */
+  public DisplayMethod getMethod() {
+    return method;
   }
 
   /** Saves the currently open grammar definition. */
@@ -63,9 +87,7 @@ public final class Controller implements ParserInfoListener {
       }
     }
     final File f = gui.chooseFile(dir);
-    if(f == null) {
-      return;
-    }
+    if(f == null) return;
 
     byte[] contents;
     try {
@@ -87,9 +109,7 @@ public final class Controller implements ParserInfoListener {
     final int pos = model.getParseTreePos();
     final ParseTree[] trees = model.getParseTrees();
 
-    if(!next && pos == 0 || next && pos >= trees.length) {
-      return;
-    }
+    if(!next && pos == 0 || next && pos >= trees.length) return;
 
     int npos;
     if(next) {
@@ -99,8 +119,22 @@ public final class Controller implements ParserInfoListener {
     }
 
     try {
-      final Displayer disp = trees[npos].getDisplayer();
+      final Displayer disp = trees[npos].getDisplayer(method);
       model.newParseTreePos(npos, disp);
+    } catch(final Exception e) {
+      gui.showError("Couldn't open parse tree:\n" + e.getMessage());
+    }
+  }
+
+  /**
+   * Ensures that the current syntax tree is redrawn.
+   */
+  public void refresh() {
+    final int pos = model.getParseTreePos();
+    final ParseTree[] trees = model.getParseTrees();
+    try {
+      final Displayer disp = trees[pos].getDisplayer(method);
+      model.newParseTreePos(pos, disp);
     } catch(final Exception e) {
       gui.showError("Couldn't open parse tree:\n" + e.getMessage());
     }
@@ -139,7 +173,7 @@ public final class Controller implements ParserInfoListener {
           }
 
           try {
-            final Displayer disp = trees[0].getDisplayer();
+            final Displayer disp = trees[0].getDisplayer(method);
             model.newParseTreePos(0, disp);
           } catch(final Exception e) {
             model.newParseTreePos(0, null);

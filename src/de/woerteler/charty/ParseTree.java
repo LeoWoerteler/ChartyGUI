@@ -12,9 +12,6 @@ public final class ParseTree {
   /** Root edge of this tree. */
   private final Edge edge;
 
-  /** The method that is used to draw the tree. */
-  private final DisplayMethod method;
-
   /** The displayer. */
   private Displayer disp;
 
@@ -22,20 +19,20 @@ public final class ParseTree {
    * Constructor.
    * 
    * @param e root edge
-   * @param m the drawing method
    */
-  ParseTree(final Edge e, final DisplayMethod m) {
-    method = m;
+  ParseTree(final Edge e) {
     edge = e;
   }
 
   /**
    * Get the displayer of this parse tree.
    * 
+   * @param method The method to draw the syntax tree.
    * @return parse tree displayer
    * @throws Exception if the conversion fails
    */
-  public synchronized Displayer getDisplayer() throws Exception {
+  public synchronized Displayer getDisplayer(final DisplayMethod method)
+      throws Exception {
     if(disp == null) {
       disp = method.getDisplayer(edge);
     }
