@@ -4,8 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.Menu;
-import java.awt.MenuBar;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,16 +14,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import de.woerteler.charty.Displayer;
+import de.woerteler.latex.LatexDisplay;
+import de.woerteler.tree.ImageDisplay;
 import de.woerteler.util.IOUtils;
 
 /**
@@ -82,10 +88,38 @@ public final class ChartyGUI extends JFrame {
     final Controller ctrl = new Controller(this, model);
 
     // menu bar
-    final MenuBar menuBar = new MenuBar();
-    setMenuBar(menuBar);
-    final Menu fileMenu = new Menu("File");
+    final JMenuBar menuBar = new JMenuBar();
+    setJMenuBar(menuBar);
+    final JMenu fileMenu = new JMenu("File");
     menuBar.add(fileMenu);
+    final JMenu displayMenu = new JMenu("Display");
+    menuBar.add(displayMenu);
+    final ButtonGroup displayGroup = new ButtonGroup();
+    final ActionListener chooseDisplay = new ActionListener() {
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        final String chk = displayGroup.getSelection().getActionCommand();
+        if(chk.equals("DD")) {
+          ctrl.setMethod(new ImageDisplay());
+        }
+        if(chk.equals("DL")) {
+          ctrl.setMethod(new LatexDisplay());
+        }
+      }
+
+    };
+    final JRadioButtonMenuItem dd = new JRadioButtonMenuItem("Direct Drawing");
+    dd.setSelected(true);
+    displayGroup.add(dd);
+    displayMenu.add(dd);
+    dd.setActionCommand("DD");
+    dd.addActionListener(chooseDisplay);
+    final JRadioButtonMenuItem dl = new JRadioButtonMenuItem("LaTeX Drawing");
+    displayGroup.add(dl);
+    displayMenu.add(dl);
+    dl.setActionCommand("DL");
+    dl.addActionListener(chooseDisplay);
 
     // Left side: edit grammar and phrase
     editor = new GrammarEditor(ctrl);
@@ -171,11 +205,7 @@ public final class ChartyGUI extends JFrame {
 
   @Override
   public void setTitle(final String title) {
-    if(title == null) {
-      super.setTitle(NAME);
-    } else {
-      super.setTitle(NAME + ": " + title);
-    }
+    super.setTitle(NAME + (title == null ? "" : ": " + title));
   }
 
   /**
