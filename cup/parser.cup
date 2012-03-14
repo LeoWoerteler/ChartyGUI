@@ -1,0 +1,58 @@
+
+package de.woerteler.grammar;
+
+import java.util.ArrayList;
+
+import de.woerteler.grammar.ast.NonTerminal;
+import de.woerteler.grammar.ast.Optional;
+import de.woerteler.grammar.ast.Plus;
+import de.woerteler.grammar.ast.Production;
+import de.woerteler.grammar.ast.RHS;
+import de.woerteler.grammar.ast.Sequence;
+import de.woerteler.grammar.ast.Star;
+
+parser code {:
+
+:};
+
+scan with {: return getScanner().next_token(); :};
+
+/* Terminals (tokens returned by the scanner). */
+terminal            PAR_L, PAR_R, PLUS, STAR, Q_MARK, TO, OR, DOT;
+
+/* Terminals with attached values. */
+terminal String     NON_TERMINAL, TERMINAL;
+
+/* Non terminals */
+non terminal NonTerminal           nonTerminal;
+non terminal RHS                   term, rhs, symbol;
+non terminal ArrayList<RHS>        rhss, sequence;
+non terminal Production            production;
+non terminal ArrayList<Production> grammar;
+
+/* The grammar */
+grammar     ::= production:p grammar:g        {: RESULT = g;                           RESULT.add(p); :}
+              | production:p                  {: RESULT = new ArrayList<Production>(); RESULT.add(p); :}
+              ;
+production  ::= nonTerminal:l TO rhss:r DOT   {: RESULT = new Production(l, r.toArray(new RHS[r.size()])); :}
+              ;
+rhss        ::= rhss:rs OR rhs:r              {: RESULT = rs;                   RESULT.add(r); :}
+              | rhs:r                         {: RESULT = new ArrayList<RHS>(); RESULT.add(r); :}
+              ;
+rhs         ::= sequence:s                    {: RESULT = new Sequence(s.toArray(new RHS[s.size()])); :}
+              | symbol:s                      {: RESULT = s; :}
+              ;
+symbol      ::= nonTerminal:n                 {: RESULT = n; :}
+              | term:t                        {: RESULT = t; :}
+              | symbol:r PLUS                 {: RESULT = new Plus(r); :}
+              | symbol:r STAR                 {: RESULT = new Star(r); :}
+              | symbol:r Q_MARK               {: RESULT = new Optional(r); :}
+              | PAR_L rhs:r PAR_R             {: RESULT = r; :}
+              ;
+sequence    ::= sequence:s symbol:r           {: RESULT = s; RESULT.add(r); :}
+              | symbol:a symbol:b             {: RESULT = new ArrayList<RHS>(); RESULT.add(a); RESULT.add(b); :}
+              ;
+nonTerminal ::= NON_TERMINAL:n                {: RESULT = new NonTerminal(n); :}
+              ;
+term        ::= TERMINAL:t                    {: RESULT = new de.woerteler.grammar.ast.Terminal(t); :}
+              ;
