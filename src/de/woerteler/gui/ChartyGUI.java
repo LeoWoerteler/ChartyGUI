@@ -204,8 +204,8 @@ public final class ChartyGUI extends JFrame {
     final JFileChooser choose = new JFileChooser(dir);
     choose.setMultiSelectionEnabled(false);
     choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    return choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION ? choose.getSelectedFile()
-            : null;
+    return choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION
+        ? choose.getSelectedFile() : null;
   }
 
   /**
