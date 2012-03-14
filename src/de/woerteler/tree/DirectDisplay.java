@@ -18,7 +18,7 @@ import de.woerteler.tree.render.NodeRenderer;
  * 
  * @author Joschi <josua.krause@googlemail.com>
  */
-public class ImageDisplay implements DisplayMethod {
+public class DirectDisplay implements DisplayMethod {
 
   /**
    * The renderer that is used to draw the tree.

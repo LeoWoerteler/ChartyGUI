@@ -29,7 +29,7 @@ import javax.swing.UIManager;
 
 import de.woerteler.charty.Displayer;
 import de.woerteler.latex.LatexDisplay;
-import de.woerteler.tree.ImageDisplay;
+import de.woerteler.tree.DirectDisplay;
 import de.woerteler.util.IOUtils;
 
 /**
@@ -101,7 +101,7 @@ public final class ChartyGUI extends JFrame {
       public void actionPerformed(final ActionEvent e) {
         final String chk = displayGroup.getSelection().getActionCommand();
         if(chk.equals("DD")) {
-          ctrl.setMethod(new ImageDisplay());
+          ctrl.setMethod(new DirectDisplay());
         }
         if(chk.equals("DL")) {
           ctrl.setMethod(new LatexDisplay());
