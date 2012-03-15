@@ -18,12 +18,13 @@ import de.woerteler.charty.ParseTree;
  */
 public final class DataModel {
 
+  /** Column names. */
+  public static final String[] columns = { "Rule", "Action"};
+
   /** Table model of the info table. */
   private final AbstractTableModel infoTableModel;
   /** Data of the info table. */
-  final ArrayList<String[]> tableData = new ArrayList<String[]>();
-  /** Column names. */
-  final String[] columns = { "Rule", "Action"};
+  private final ArrayList<String[]> tableData = new ArrayList<String[]>();
 
   /** The Document for the grammar editor. */
   private Document grammar;
@@ -54,16 +55,12 @@ public final class DataModel {
 
       @Override
       public String getValueAt(final int row, final int column) {
-        synchronized(this) {
-          return tableData.get(row)[column];
-        }
+        return getTableDataAt(row, column);
       }
 
       @Override
       public int getRowCount() {
-        synchronized(this) {
-          return tableData.size();
-        }
+        return getTableDataSize();
       }
 
       @Override
@@ -79,11 +76,35 @@ public final class DataModel {
   }
 
   /**
+   * Getter.
+   * 
+   * @param row The row.
+   * @param col The column.
+   * @return The content.
+   */
+  public String getTableDataAt(final int row, final int col) {
+    synchronized(infoTableModel) {
+      return tableData.get(row)[col];
+    }
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return The table size.
+   */
+  public int getTableDataSize() {
+    synchronized(infoTableModel) {
+      return tableData.size();
+    }
+  }
+
+  /**
    * Sets the grammar viewer's document.
    * 
    * @param doc document
    */
-  void setDocument(final Document doc) {
+  public void setDocument(final Document doc) {
     grammar = doc;
   }
 
@@ -92,7 +113,7 @@ public final class DataModel {
    * 
    * @return table model
    */
-  TableModel getInfoTableModel() {
+  public TableModel getInfoTableModel() {
     return infoTableModel;
   }
 
@@ -102,7 +123,7 @@ public final class DataModel {
    * @param rule rule that produced the output
    * @param desc description
    */
-  void addInfo(final String rule, final String desc) {
+  public void addInfo(final String rule, final String desc) {
     synchronized(infoTableModel) {
       final int len = tableData.size();
       tableData.add(new String[] { rule, desc});
@@ -116,7 +137,7 @@ public final class DataModel {
    * @param f file
    * @param contents contents of the file
    */
-  synchronized void setOpenedFile(final File f, final String contents) {
+  public synchronized void setOpenedFile(final File f, final String contents) {
     opened = f;
     if(f != null) {
       gui.setTitle(f.getPath());
@@ -135,7 +156,7 @@ public final class DataModel {
    * 
    * @return opened file
    */
-  synchronized File getOpenedFile() {
+  public synchronized File getOpenedFile() {
     return opened;
   }
 
@@ -144,7 +165,7 @@ public final class DataModel {
    * 
    * @param ts trees
    */
-  synchronized void setParseTrees(final ParseTree[] ts) {
+  public synchronized void setParseTrees(final ParseTree[] ts) {
     trees = ts;
   }
 
@@ -153,7 +174,7 @@ public final class DataModel {
    * 
    * @return parse trees
    */
-  synchronized ParseTree[] getParseTrees() {
+  public synchronized ParseTree[] getParseTrees() {
     return trees;
   }
 
@@ -163,7 +184,7 @@ public final class DataModel {
    * @param pos new position
    * @param disp the displayer
    */
-  synchronized void newParseTreePos(final int pos, final Displayer disp) {
+  public synchronized void newParseTreePos(final int pos, final Displayer disp) {
     parseTreePos = pos;
     gui.showParseTree(disp, pos + 1, trees.length);
   }
@@ -173,7 +194,7 @@ public final class DataModel {
    * 
    * @return position
    */
-  int getParseTreePos() {
+  public int getParseTreePos() {
     return parseTreePos;
   }
 
@@ -182,7 +203,7 @@ public final class DataModel {
    * 
    * @return the grammar definitions
    */
-  String getGrammar() {
+  public String getGrammar() {
     try {
       return grammar.getText(0, grammar.getLength());
     } catch(final BadLocationException e) {
@@ -191,7 +212,7 @@ public final class DataModel {
   }
 
   /** Clears the info panel. */
-  void clearInfo() {
+  public void clearInfo() {
     synchronized(infoTableModel) {
       final int size = tableData.size();
       tableData.clear();

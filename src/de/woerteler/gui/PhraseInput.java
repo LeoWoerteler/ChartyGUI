@@ -36,12 +36,12 @@ public final class PhraseInput extends JPanel {
    * 
    * @param ctrl controller
    */
-  PhraseInput(final Controller ctrl) {
+  public PhraseInput(final Controller ctrl) {
     setLayout(new BorderLayout());
 
     input = new JTextField();
     input.getInputMap().
-        put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), PARSE);
+    put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), PARSE);
     input.getActionMap().put(PARSE, ctrl.getActionFor(PARSE));
 
     input.setText(EXAMPLE_TEXT);
@@ -52,7 +52,7 @@ public final class PhraseInput extends JPanel {
   }
 
   /** Requests the focus for the input text field. */
-  void focus() {
+  public void focus() {
     input.requestFocusInWindow();
   }
 
@@ -69,4 +69,5 @@ public final class PhraseInput extends JPanel {
       e1.printStackTrace();
     }
   }
+
 }

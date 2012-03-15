@@ -22,7 +22,7 @@ public class ParserInfoViewer extends JScrollPane {
    *
    * @param model table model
    */
-  ParserInfoViewer(final TableModel model) {
+  public ParserInfoViewer(final TableModel model) {
     final JTable table = new JTable(model);
     model.addTableModelListener(new TableModelListener() {
 

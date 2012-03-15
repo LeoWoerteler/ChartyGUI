@@ -55,6 +55,7 @@ public final class ChartyGUI extends JFrame {
 
   /** Cache for icons. */
   private static final HashMap<String, ImageIcon> ICON_MAP;
+
   static {
     ICON_MAP = new HashMap<String, ImageIcon>();
   }
@@ -184,7 +185,7 @@ public final class ChartyGUI extends JFrame {
    * @param name name of the icon
    * @return icon
    */
-  static ImageIcon icon(final String name) {
+  public static final ImageIcon icon(final String name) {
     if(!ICON_MAP.containsKey(name)) {
       try {
         final InputStream in = IOUtils.getResource("icons/" + name + ".png");
@@ -206,7 +207,7 @@ public final class ChartyGUI extends JFrame {
    * 
    * @param msg message
    */
-  void showError(final String msg) {
+  public void showError(final String msg) {
     final Component cgui = this;
     SwingUtilities.invokeLater(new Runnable() {
       @Override
@@ -223,7 +224,7 @@ public final class ChartyGUI extends JFrame {
    * @param dir the starting directory
    * @return the chosen file or {@code null}, if nothing was chosen
    */
-  File chooseFile(final File dir) {
+  public File chooseFile(final File dir) {
     final JFileChooser choose = new JFileChooser(dir);
     choose.setMultiSelectionEnabled(false);
     choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -238,12 +239,12 @@ public final class ChartyGUI extends JFrame {
    * @param pos current position
    * @param num current number of parse trees
    */
-  void showParseTree(final Displayer tree, final int pos, final int num) {
+  public void showParseTree(final Displayer tree, final int pos, final int num) {
     treeViewer.showParseTree(tree, pos, num);
   }
 
   /** Rewinds the caret position in the grammar editor. */
-  void rewindGrammar() {
+  public void rewindGrammar() {
     editor.rewind();
   }
 

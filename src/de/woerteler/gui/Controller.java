@@ -24,7 +24,8 @@ import de.woerteler.tree.render.DefaultRenderer;
 import de.woerteler.util.IOUtils;
 
 /**
- * The controller class.
+ * The controller class. The controller should be used to alter the gui
+ * environment.
  * 
  * @author Leo Woerteler
  */
@@ -34,16 +35,16 @@ public final class Controller implements ParserInfoListener {
   private final GUIActions actions;
 
   /** The data model. */
-  final DataModel model;
+  private final DataModel model;
 
   /** The GUI. */
-  final ChartyGUI gui;
+  private final ChartyGUI gui;
 
   /** Lock for the parse method. */
-  final Object parseLock = new Object();
+  private final Object parseLock = new Object();
 
   /** The method to display the syntax tree. */
-  DisplayMethod method = new DirectDisplay(new DefaultRenderer());
+  private DisplayMethod method = new DirectDisplay(new DefaultRenderer());
 
   /**
    * Constructor taking the application's {@link DataModel model}.
@@ -51,7 +52,7 @@ public final class Controller implements ParserInfoListener {
    * @param mod data model
    * @param g gui
    */
-  Controller(final ChartyGUI g, final DataModel mod) {
+  public Controller(final ChartyGUI g, final DataModel mod) {
     gui = g;
     model = mod;
     actions = new GUIActions(this);
@@ -87,7 +88,7 @@ public final class Controller implements ParserInfoListener {
   }
 
   /** Saves the currently open grammar definition. */
-  void saveFile() {
+  public void saveGrammar() {
     final File f = model.getOpenedFile();
     if(f == null) {
       gui.showError("There's no open file to save!");
@@ -95,7 +96,7 @@ public final class Controller implements ParserInfoListener {
   }
 
   /** Opens a new grammar definition. */
-  void openFile() {
+  public void openGrammar() {
     File dir = null;
     final File curr = model.getOpenedFile();
     if(curr != null) {
@@ -125,7 +126,7 @@ public final class Controller implements ParserInfoListener {
    * 
    * @param next direction flag
    */
-  void navigate(final boolean next) {
+  public void navigate(final boolean next) {
     final int pos = model.getParseTreePos();
     final ParseTree[] trees = model.getParseTrees();
 
@@ -166,42 +167,49 @@ public final class Controller implements ParserInfoListener {
    * 
    * @param text phrase
    */
-  void parse(final String text) {
+  public void parse(final String text) {
     if(text.trim().isEmpty()) {
       gui.showError("Parser error:\nEmpty phrase");
       return;
     }
 
+    // make sure objects don't change during parsing
+    final Object pl = parseLock;
+    final DataModel m = model;
+    final ChartyGUI cg = gui;
+    final DisplayMethod dm = method;
     final Thread t = new Thread() {
+
       @Override
       public void run() {
-        synchronized(parseLock) {
-          model.clearInfo();
-          final String g = model.getGrammar();
+        synchronized(pl) {
+          m.clearInfo();
+          final String g = m.getGrammar();
           ParseTree[] trees = new ParseTree[0];
           try {
             trees = ChartParser.parse(new Grammar(new StringReader(g)),
                 Tokenizer.tokenize(text), Controller.this);
           } catch(final ParserException e) {
-            gui.showError("Parser error:\n" + e.getMessage());
+            cg.showError("Parser error:\n" + e.getMessage());
           } catch(final GrammarSyntaxException e) {
-            gui.showError("Grammar error:\n" + e.getMessage());
+            cg.showError("Grammar error:\n" + e.getMessage());
           }
-          model.setParseTrees(trees);
+          m.setParseTrees(trees);
           if(trees.length == 0) {
-            model.newParseTreePos(0, null);
+            m.newParseTreePos(0, null);
             return;
           }
 
           try {
-            final Displayer disp = trees[0].getDisplayer(method);
-            model.newParseTreePos(0, disp);
+            final Displayer disp = trees[0].getDisplayer(dm);
+            m.newParseTreePos(0, disp);
           } catch(final Exception e) {
-            model.newParseTreePos(0, null);
-            gui.showError("Couldn't open parse tree:\n" + e.getMessage());
+            m.newParseTreePos(0, null);
+            cg.showError("Couldn't open parse tree:\n" + e.getMessage());
           }
         }
       }
+
     };
     t.start();
   }

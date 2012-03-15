@@ -53,12 +53,12 @@ public final class GrammarEditor extends JPanel {
    *
    * @return the document
    */
-  Document getDocument() {
+  public Document getDocument() {
     return area.getDocument();
   }
 
   /** Rewinds the caret position to the start of the document. */
-  void rewind() {
+  public void rewind() {
     area.setCaretPosition(0);
   }
 

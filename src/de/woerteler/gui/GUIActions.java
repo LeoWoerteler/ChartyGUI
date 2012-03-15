@@ -123,7 +123,7 @@ public class GUIActions {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        ctrl.saveFile();
+        ctrl.saveGrammar();
       }
 
     });
@@ -134,7 +134,7 @@ public class GUIActions {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        ctrl.openFile();
+        ctrl.openGrammar();
       }
 
     });

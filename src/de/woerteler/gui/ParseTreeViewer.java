@@ -50,20 +50,20 @@ public final class ParseTreeViewer extends JPanel {
   private static final int MARGIN = 10;
 
   /** The x offset of the tree. */
-  double offX;
+  private double offX;
 
   /** The y offset of the tree. */
-  double offY;
+  private double offY;
 
   /** The scaling of the tree. */
-  double zoom;
+  private double zoom;
 
   /**
    * Constructor.
    * 
    * @param ctrl controller
    */
-  ParseTreeViewer(final Controller ctrl) {
+  public ParseTreeViewer(final Controller ctrl) {
     super(new BorderLayout());
     final JPanel nav = new JPanel(new BorderLayout());
     display = new JComponent() {
@@ -160,7 +160,7 @@ public final class ParseTreeViewer extends JPanel {
    * @param pos current position
    * @param num current number of parse trees
    */
-  void showParseTree(final Displayer disp, final int pos, final int num) {
+  public void showParseTree(final Displayer disp, final int pos, final int num) {
     if(disp == null) {
       label.setText("nothing to show");
       left.setEnabled(false);
@@ -199,7 +199,7 @@ public final class ParseTreeViewer extends JPanel {
    * 
    * @return tree
    */
-  synchronized Displayer getTree() {
+  public synchronized Displayer getTree() {
     return tree;
   }
 
