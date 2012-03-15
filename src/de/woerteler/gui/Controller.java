@@ -15,6 +15,7 @@ import de.woerteler.charty.ParserException;
 import de.woerteler.charty.ParserInfoListener;
 import de.woerteler.charty.Tokenizer;
 import de.woerteler.tree.DirectDisplay;
+import de.woerteler.tree.render.DefaultRenderer;
 import de.woerteler.util.IOUtils;
 
 /**
@@ -34,7 +35,7 @@ public final class Controller implements ParserInfoListener {
   final Object parseLock = new Object();
 
   /** The method to display the syntax tree. */
-  DisplayMethod method = new DirectDisplay();
+  DisplayMethod method = new DirectDisplay(new DefaultRenderer());
 
   /**
    * Constructor taking the application's {@link DataModel model}.

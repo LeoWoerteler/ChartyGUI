@@ -10,7 +10,6 @@ import java.awt.image.BufferedImage;
 import de.woerteler.charty.ChartParser.Edge;
 import de.woerteler.charty.DisplayMethod;
 import de.woerteler.charty.Displayer;
-import de.woerteler.tree.render.DefaultRenderer;
 import de.woerteler.tree.render.NodeRenderer;
 
 /**
@@ -21,18 +20,28 @@ import de.woerteler.tree.render.NodeRenderer;
 public class DirectDisplay implements DisplayMethod {
 
   /**
-   * The renderer that is used to draw the tree.
-   */
-  public static NodeRenderer renderer = new DefaultRenderer();
-
-  /**
    * The font to draw the labels or <code>null</code> if the default font should
    * be used.
    */
   public static Font font = Font.decode("times new roman BOLD 12");
 
+  /**
+   * The renderer that is used to draw the tree.
+   */
+  private final NodeRenderer renderer;
+
+  /**
+   * Creates a direct on screen display.
+   * 
+   * @param renderer The renderer to draw the tree.
+   */
+  public DirectDisplay(final NodeRenderer renderer) {
+    this.renderer = renderer;
+  }
+
   @Override
   public Displayer getDisplayer(final Edge e) throws Exception {
+    final NodeRenderer render = renderer;
     final Node n = generateNodeStructure(e);
     final Rectangle2D bbox = n.getBoundingBox();
     return new Displayer() {
@@ -42,7 +51,7 @@ public class DirectDisplay implements DisplayMethod {
         if(font != null) {
           gfx.setFont(font);
         }
-        n.draw(gfx, renderer);
+        n.draw(gfx, render);
       }
 
       @Override

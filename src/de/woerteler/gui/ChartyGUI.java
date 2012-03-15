@@ -30,6 +30,8 @@ import javax.swing.UIManager;
 import de.woerteler.charty.Displayer;
 import de.woerteler.latex.LatexDisplay;
 import de.woerteler.tree.DirectDisplay;
+import de.woerteler.tree.render.DefaultRenderer;
+import de.woerteler.tree.render.SimpleRenderer;
 import de.woerteler.util.IOUtils;
 
 /**
@@ -95,31 +97,40 @@ public final class ChartyGUI extends JFrame {
     final JMenu displayMenu = new JMenu("Display");
     menuBar.add(displayMenu);
     final ButtonGroup displayGroup = new ButtonGroup();
-    final ActionListener chooseDisplay = new ActionListener() {
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        final String chk = displayGroup.getSelection().getActionCommand();
-        if(chk.equals("DD")) {
-          ctrl.setMethod(new DirectDisplay());
-        }
-        if(chk.equals("DL")) {
-          ctrl.setMethod(new LatexDisplay());
-        }
-      }
-
-    };
     final JRadioButtonMenuItem dd = new JRadioButtonMenuItem("Direct Drawing");
     dd.setSelected(true);
     displayGroup.add(dd);
     displayMenu.add(dd);
-    dd.setActionCommand("DD");
-    dd.addActionListener(chooseDisplay);
+    dd.addActionListener(new ActionListener() {
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.setMethod(new DirectDisplay(new DefaultRenderer()));
+      }
+
+    });
+    final JRadioButtonMenuItem db = new JRadioButtonMenuItem("Direct Drawing (Boxes)");
+    displayGroup.add(db);
+    displayMenu.add(db);
+    db.addActionListener(new ActionListener() {
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.setMethod(new DirectDisplay(new SimpleRenderer()));
+      }
+
+    });
     final JRadioButtonMenuItem dl = new JRadioButtonMenuItem("LaTeX Drawing");
     displayGroup.add(dl);
     displayMenu.add(dl);
-    dl.setActionCommand("DL");
-    dl.addActionListener(chooseDisplay);
+    dl.addActionListener(new ActionListener() {
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.setMethod(new LatexDisplay());
+      }
+
+    });
 
     // Left side: edit grammar and phrase
     editor = new GrammarEditor(ctrl);

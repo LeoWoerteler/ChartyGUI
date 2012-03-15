@@ -12,9 +12,6 @@ public final class ParseTree {
   /** Root edge of this tree. */
   private final Edge edge;
 
-  /** The displayer. */
-  private Displayer disp;
-
   /**
    * Constructor.
    * 
@@ -31,12 +28,9 @@ public final class ParseTree {
    * @return parse tree displayer
    * @throws Exception if the conversion fails
    */
-  public synchronized Displayer getDisplayer(final DisplayMethod method)
+  public Displayer getDisplayer(final DisplayMethod method)
       throws Exception {
-    if(disp == null) {
-      disp = method.getDisplayer(edge);
-    }
-    return disp;
+    return method.getDisplayer(edge);
   }
 
 }
