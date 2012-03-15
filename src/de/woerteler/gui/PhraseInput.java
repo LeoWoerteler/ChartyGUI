@@ -1,14 +1,14 @@
 package de.woerteler.gui;
 
+import static de.woerteler.gui.GUIActions.ActionID.*;
+
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
@@ -40,25 +40,15 @@ public final class PhraseInput extends JPanel {
     setLayout(new BorderLayout());
 
     input = new JTextField();
-    input.addKeyListener(new KeyAdapter() {
-      @Override
-      public void keyPressed(final KeyEvent e) {
-        if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-          parse(ctrl);
-        }
-      }
-    });
+    input.getInputMap().
+        put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), PARSE);
+    input.getActionMap().put(PARSE, ctrl.getActionFor(PARSE));
+
     input.setText(EXAMPLE_TEXT);
     add(input, BorderLayout.CENTER);
 
-    final JButton parse = new JButton("Parse");
-    parse.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        parse(ctrl);
-      }
-    });
-    add(parse, BorderLayout.LINE_END);
+    add(new JButton(ctrl.getActionFor(PARSE)), BorderLayout.LINE_END);
+    ctrl.setPhraseInput(this);
   }
 
   /** Requests the focus for the input text field. */
@@ -71,7 +61,7 @@ public final class PhraseInput extends JPanel {
    * 
    * @param ctrl Controller
    */
-  void parse(final Controller ctrl) {
+  public void parse(final Controller ctrl) {
     final Document doc = input.getDocument();
     try {
       ctrl.parse(doc.getText(0, doc.getLength()));

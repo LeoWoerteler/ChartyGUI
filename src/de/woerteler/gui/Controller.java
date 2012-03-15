@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+
 import de.woerteler.charty.ChartParser;
 import de.woerteler.charty.DisplayMethod;
 import de.woerteler.charty.Displayer;
@@ -14,6 +18,7 @@ import de.woerteler.charty.ParseTree;
 import de.woerteler.charty.ParserException;
 import de.woerteler.charty.ParserInfoListener;
 import de.woerteler.charty.Tokenizer;
+import de.woerteler.gui.GUIActions.ActionID;
 import de.woerteler.tree.DirectDisplay;
 import de.woerteler.tree.render.DefaultRenderer;
 import de.woerteler.util.IOUtils;
@@ -24,6 +29,9 @@ import de.woerteler.util.IOUtils;
  * @author Leo Woerteler
  */
 public final class Controller implements ParserInfoListener {
+
+  /** The holder of all actions. */
+  private final GUIActions actions;
 
   /** The data model. */
   final DataModel model;
@@ -46,6 +54,17 @@ public final class Controller implements ParserInfoListener {
   Controller(final ChartyGUI g, final DataModel mod) {
     gui = g;
     model = mod;
+    actions = new GUIActions(this);
+  }
+
+  /**
+   * Getter.
+   * 
+   * @param id The action id.
+   * @return The action associated with the given id.
+   */
+  public Action getActionFor(final ActionID id) {
+    return actions.getAction(id);
   }
 
   /**
@@ -133,6 +152,7 @@ public final class Controller implements ParserInfoListener {
   public void refresh() {
     final int pos = model.getParseTreePos();
     final ParseTree[] trees = model.getParseTrees();
+    if(pos >= trees.length) return;
     try {
       final Displayer disp = trees[pos].getDisplayer(method);
       model.newParseTreePos(pos, disp);
@@ -193,10 +213,25 @@ public final class Controller implements ParserInfoListener {
 
   /**
    * Saves the current view on the syntax tree.
-   * 
-   * @param file The destination.
    */
-  public void saveView(final File file) {
+  public void saveView() {
+    final JFileChooser choose = new JFileChooser();
+    choose.addChoosableFileFilter(new FileFilter() {
+
+      @Override
+      public String getDescription() {
+        return "Image (*.png, *.jpg, *.jpeg)";
+      }
+
+      @Override
+      public boolean accept(final File f) {
+        final String name = f.getName();
+        return !f.isFile() || name.endsWith(".png") || name.endsWith(".jpg")
+            || name.endsWith(".jpeg");
+      }
+    });
+    if(choose.showSaveDialog(gui) != JFileChooser.APPROVE_OPTION) return;
+    final File file = choose.getSelectedFile();
     File dest;
     if(!file.getName().contains(".")) {
       dest = new File(file.getParentFile(), file.getName() + ".png");
@@ -205,4 +240,31 @@ public final class Controller implements ParserInfoListener {
     }
     gui.saveView(dest);
   }
+
+  /** The input phrase component. */
+  private PhraseInput phraseInput;
+
+  /**
+   * Setter.
+   * 
+   * @param phraseInput The input phrase component.
+   */
+  public void setPhraseInput(final PhraseInput phraseInput) {
+    this.phraseInput = phraseInput;
+  }
+
+  /**
+   * Parses the given input phrase.
+   */
+  public void parse() {
+    phraseInput.parse(this);
+  }
+
+  /**
+   * Exits the program by closing the main window.
+   */
+  public void exit() {
+    gui.dispose();
+  }
+
 }

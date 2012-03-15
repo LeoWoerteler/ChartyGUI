@@ -1,12 +1,12 @@
 package de.woerteler.gui;
 
+import static de.woerteler.gui.GUIActions.ActionID.*;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -16,27 +16,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.filechooser.FileFilter;
 
 import de.woerteler.charty.Displayer;
-import de.woerteler.latex.LatexDisplay;
-import de.woerteler.tree.DirectDisplay;
-import de.woerteler.tree.render.DefaultRenderer;
-import de.woerteler.tree.render.SimpleRenderer;
 import de.woerteler.util.IOUtils;
 
 /**
@@ -99,71 +92,28 @@ public final class ChartyGUI extends JFrame {
     setJMenuBar(menuBar);
     final JMenu fileMenu = new JMenu("File");
     menuBar.add(fileMenu);
+    fileMenu.add(ctrl.getActionFor(GRAMMAR_OPEN));
+    fileMenu.add(ctrl.getActionFor(GRAMMAR_SAVE));
+    fileMenu.addSeparator();
+    fileMenu.add(ctrl.getActionFor(EXIT));
     final JMenu displayMenu = new JMenu("Display");
     menuBar.add(displayMenu);
     final ButtonGroup displayGroup = new ButtonGroup();
-    final JRadioButtonMenuItem dd = new JRadioButtonMenuItem("Direct Drawing");
+    final JRadioButtonMenuItem dd = new JRadioButtonMenuItem(
+        ctrl.getActionFor(DISPLAY_DEFAULT));
     dd.setSelected(true);
     displayGroup.add(dd);
     displayMenu.add(dd);
-    dd.addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        ctrl.setMethod(new DirectDisplay(new DefaultRenderer()));
-      }
-
-    });
-    final JRadioButtonMenuItem db = new JRadioButtonMenuItem("Direct Drawing (Boxes)");
+    final JRadioButtonMenuItem db = new JRadioButtonMenuItem(
+        ctrl.getActionFor(DISPLAY_BOX));
     displayGroup.add(db);
     displayMenu.add(db);
-    db.addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        ctrl.setMethod(new DirectDisplay(new SimpleRenderer()));
-      }
-
-    });
-    final JRadioButtonMenuItem dl = new JRadioButtonMenuItem("LaTeX Drawing");
+    final JRadioButtonMenuItem dl = new JRadioButtonMenuItem(
+        ctrl.getActionFor(DISPLAY_LATEX));
     displayGroup.add(dl);
     displayMenu.add(dl);
-    dl.addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        ctrl.setMethod(new LatexDisplay());
-      }
-
-    });
     displayMenu.addSeparator();
-    final JMenuItem saveImg = new JMenuItem(new AbstractAction("Save current view...") {
-
-      private static final long serialVersionUID = -1487104580494952919L;
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        final JFileChooser choose = new JFileChooser();
-        choose.addChoosableFileFilter(new FileFilter() {
-
-          @Override
-          public String getDescription() {
-            return "Image (*.png, *.jpg, *.jpeg)";
-          }
-
-          @Override
-          public boolean accept(final File f) {
-            final String name = f.getName();
-            return !f.isFile() || name.endsWith(".png") || name.endsWith(".jpg")
-                || name.endsWith(".jpeg");
-          }
-        });
-        if(choose.showSaveDialog(ChartyGUI.this) != JFileChooser.APPROVE_OPTION) return;
-        ctrl.saveView(choose.getSelectedFile());
-      }
-
-    });
-    displayMenu.add(saveImg);
+    displayMenu.add(ctrl.getActionFor(VIEW_SAVE));
     // Left side: edit grammar and phrase
     editor = new GrammarEditor(ctrl);
     model.setDocument(editor.getDocument());

@@ -1,11 +1,9 @@
 package de.woerteler.gui;
 
-import static de.woerteler.gui.ChartyGUI.icon;
+import static de.woerteler.gui.GUIActions.ActionID.*;
 
 import java.awt.BorderLayout;
 import java.awt.ComponentOrientation;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -20,11 +18,6 @@ import javax.swing.text.Document;
  * @author Leo Woerteler
  */
 public final class GrammarEditor extends JPanel {
-
-  /** Save button. */
-  private final JButton save;
-  /** open button. */
-  private final JButton open;
 
   /** Text area. */
   private final JTextArea area;
@@ -44,24 +37,10 @@ public final class GrammarEditor extends JPanel {
     toolBar.setFloatable(false);
 
     // save button
-    save = new JButton(icon("save"));
-    save.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        ctrl.saveFile();
-      }
-    });
-    toolBar.add(save);
+    toolBar.add(new JButton(ctrl.getActionFor(GRAMMAR_SAVE)));
 
     // open button
-    open = new JButton(icon("open"));
-    open.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        ctrl.openFile();
-      }
-    });
-    toolBar.add(open);
+    toolBar.add(new JButton(ctrl.getActionFor(GRAMMAR_OPEN)));
 
     add(toolBar, BorderLayout.PAGE_START);
 

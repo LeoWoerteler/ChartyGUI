@@ -1,5 +1,7 @@
 package de.woerteler.gui;
 
+import static de.woerteler.gui.GUIActions.ActionID.*;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -7,8 +9,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -143,24 +143,12 @@ public final class ParseTreeViewer extends JPanel {
     label.setFont(label.getFont().deriveFont(Font.BOLD));
     nav.add(label, BorderLayout.CENTER);
 
-    left = new JButton(ChartyGUI.icon("arrow_left"));
+    left = new JButton(ctrl.getActionFor(VIEW_PREV));
     left.setEnabled(false);
-    left.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        ctrl.navigate(false);
-      }
-    });
     nav.add(left, BorderLayout.WEST);
 
-    right = new JButton(ChartyGUI.icon("arrow_right"));
+    right = new JButton(ctrl.getActionFor(VIEW_NEXT));
     right.setEnabled(false);
-    right.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        ctrl.navigate(true);
-      }
-    });
     nav.add(right, BorderLayout.EAST);
     add(nav, BorderLayout.SOUTH);
   }

@@ -41,4 +41,5 @@ public class ParserInfoViewer extends JScrollPane {
     table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     setViewportView(table);
   }
+
 }
