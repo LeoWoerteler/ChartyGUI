@@ -190,4 +190,19 @@ public final class Controller implements ParserInfoListener {
   public void info(final String category, final String message) {
     model.addInfo(category, message);
   }
+
+  /**
+   * Saves the current view on the syntax tree.
+   * 
+   * @param file The destination.
+   */
+  public void saveView(final File file) {
+    File dest;
+    if(!file.getName().contains(".")) {
+      dest = new File(file.getParentFile(), file.getName() + ".png");
+    } else {
+      dest = file;
+    }
+    gui.saveView(dest);
+  }
 }

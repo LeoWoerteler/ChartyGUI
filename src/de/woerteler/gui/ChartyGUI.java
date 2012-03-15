@@ -3,9 +3,11 @@ package de.woerteler.gui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,18 +16,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
 
 import de.woerteler.charty.Displayer;
 import de.woerteler.latex.LatexDisplay;
@@ -131,7 +136,34 @@ public final class ChartyGUI extends JFrame {
       }
 
     });
+    displayMenu.addSeparator();
+    final JMenuItem saveImg = new JMenuItem(new AbstractAction("Save current view...") {
 
+      private static final long serialVersionUID = -1487104580494952919L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        final JFileChooser choose = new JFileChooser();
+        choose.addChoosableFileFilter(new FileFilter() {
+
+          @Override
+          public String getDescription() {
+            return "Image (*.png, *.jpg, *.jpeg)";
+          }
+
+          @Override
+          public boolean accept(final File f) {
+            final String name = f.getName();
+            return !f.isFile() || name.endsWith(".png") || name.endsWith(".jpg")
+                || name.endsWith(".jpeg");
+          }
+        });
+        if(choose.showSaveDialog(ChartyGUI.this) != JFileChooser.APPROVE_OPTION) return;
+        ctrl.saveView(choose.getSelectedFile());
+      }
+
+    });
+    displayMenu.add(saveImg);
     // Left side: edit grammar and phrase
     editor = new GrammarEditor(ctrl);
     model.setDocument(editor.getDocument());
@@ -263,6 +295,26 @@ public final class ChartyGUI extends JFrame {
   /** Rewinds the caret position in the grammar editor. */
   void rewindGrammar() {
     editor.rewind();
+  }
+
+  /**
+   * Saves the current view of the syntax tree.
+   * 
+   * @param file The destination.
+   */
+  public void saveView(final File file) {
+    final Dimension dim = treeViewer.getTreeViewSize();
+    final BufferedImage img = new BufferedImage(dim.width, dim.height,
+        BufferedImage.TYPE_INT_ARGB);
+    final Graphics2D gfx = (Graphics2D) img.getGraphics();
+    treeViewer.paintSyntaxTree(gfx);
+    gfx.dispose();
+    final boolean isPng = file.getName().endsWith(".png");
+    try {
+      ImageIO.write(img, isPng ? "PNG" : "JPG", file);
+    } catch(final IOException e) {
+      showError(e.getMessage());
+    }
   }
 
 }

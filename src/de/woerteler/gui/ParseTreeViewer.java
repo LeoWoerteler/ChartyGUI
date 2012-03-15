@@ -66,7 +66,6 @@ public final class ParseTreeViewer extends JPanel {
   ParseTreeViewer(final Controller ctrl) {
     super(new BorderLayout());
     final JPanel nav = new JPanel(new BorderLayout());
-
     display = new JComponent() {
 
       /** Serial version UID. */
@@ -75,22 +74,7 @@ public final class ParseTreeViewer extends JPanel {
       @Override
       protected void paintComponent(final Graphics g) {
         final Graphics2D gfx = (Graphics2D) g.create();
-        gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-            RenderingHints.VALUE_ANTIALIAS_ON);
-        final Dimension dim = getSize();
-        gfx.setColor(Color.WHITE);
-        // drawn rectangle is 1 smaller in every direction
-        gfx.fillRect(0, 0, dim.width + 1, dim.height + 1);
-        if(dim.width > 2 * MARGIN && dim.height > 2 * MARGIN) {
-          final Displayer d = getTree();
-          if(d != null) {
-            final Graphics2D g2 = (Graphics2D) gfx.create();
-            g2.translate(offX, offY);
-            g2.scale(zoom, zoom);
-            d.drawTree(g2);
-            g2.dispose();
-          }
-        }
+        paintSyntaxTree(gfx);
         gfx.dispose();
       }
 
@@ -208,7 +192,7 @@ public final class ParseTreeViewer extends JPanel {
    */
   private synchronized void setTree(final Displayer t) {
     tree = t;
-    final Dimension dim = display.getSize();
+    final Dimension dim = getTreeViewSize();
     final int nw = dim.width - 2 * MARGIN;
     final int nh = dim.height - 2 * MARGIN;
     final Rectangle2D bbox = tree.getBoundingBox();
@@ -278,7 +262,7 @@ public final class ParseTreeViewer extends JPanel {
    * @param factor The zoom factor.
    */
   public void zoom(final double factor) {
-    final Dimension dim = display.getSize();
+    final Dimension dim = getTreeViewSize();
     zoomTo(dim.width / 2.0, dim.height / 2.0, factor);
   }
 
@@ -298,6 +282,39 @@ public final class ParseTreeViewer extends JPanel {
    */
   public double getOffsetY() {
     return offY;
+  }
+
+  /**
+   * Paints the syntax tree to the given device.
+   * 
+   * @param gfx The graphics device.
+   */
+  public void paintSyntaxTree(final Graphics2D gfx) {
+    gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON);
+    final Dimension dim = getTreeViewSize();
+    gfx.setColor(Color.WHITE);
+    // drawn rectangle is 1 smaller in every direction
+    gfx.fillRect(0, 0, dim.width + 1, dim.height + 1);
+    if(dim.width > 2 * MARGIN && dim.height > 2 * MARGIN) {
+      final Displayer d = getTree();
+      if(d != null) {
+        final Graphics2D g2 = (Graphics2D) gfx.create();
+        g2.translate(offX, offY);
+        g2.scale(zoom, zoom);
+        d.drawTree(g2);
+        g2.dispose();
+      }
+    }
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return The size of the syntax tree view component i.e. the size of the drawing area.
+   */
+  public Dimension getTreeViewSize() {
+    return display.getSize();
   }
 
 }
