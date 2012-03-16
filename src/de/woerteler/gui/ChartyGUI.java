@@ -185,7 +185,7 @@ public final class ChartyGUI extends JFrame {
    * @param name name of the icon
    * @return icon
    */
-  public static final ImageIcon icon(final String name) {
+  public static ImageIcon icon(final String name) {
     if(!ICON_MAP.containsKey(name)) {
       try {
         final InputStream in = IOUtils.getResource("icons/" + name + ".png");

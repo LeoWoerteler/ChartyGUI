@@ -19,7 +19,7 @@ import de.woerteler.charty.ParseTree;
 public final class DataModel {
 
   /** Column names. */
-  public static final String[] columns = { "Rule", "Action"};
+  public static final String[] COLUMNS = { "Rule", "Action"};
 
   /** Table model of the info table. */
   private final AbstractTableModel infoTableModel;
@@ -70,7 +70,7 @@ public final class DataModel {
 
       @Override
       public String getColumnName(final int column) {
-        return columns[column];
+        return COLUMNS[column];
       }
     };
   }
