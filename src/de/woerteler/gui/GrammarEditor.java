@@ -37,10 +37,14 @@ public final class GrammarEditor extends JPanel {
     toolBar.setFloatable(false);
 
     // save button
-    toolBar.add(new JButton(ctrl.getActionFor(GRAMMAR_SAVE)));
+    final JButton save = new JButton(ctrl.getActionFor(GRAMMAR_SAVE));
+    save.setText(null);
+    toolBar.add(save);
 
     // open button
-    toolBar.add(new JButton(ctrl.getActionFor(GRAMMAR_OPEN)));
+    final JButton open = new JButton(ctrl.getActionFor(GRAMMAR_OPEN));
+    open.setText(null);
+    toolBar.add(open);
 
     add(toolBar, BorderLayout.PAGE_START);
 

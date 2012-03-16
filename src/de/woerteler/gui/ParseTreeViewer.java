@@ -144,10 +144,12 @@ public final class ParseTreeViewer extends JPanel {
     nav.add(label, BorderLayout.CENTER);
 
     left = new JButton(ctrl.getActionFor(VIEW_PREV));
+    left.setText(null);
     left.setEnabled(false);
     nav.add(left, BorderLayout.WEST);
 
     right = new JButton(ctrl.getActionFor(VIEW_NEXT));
+    right.setText(null);
     right.setEnabled(false);
     nav.add(right, BorderLayout.EAST);
     add(nav, BorderLayout.SOUTH);
