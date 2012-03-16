@@ -1,4 +1,6 @@
 
+### Charty
+
 This is an easy to use syntax tree viewer for ambiguous grammars
 as from natural languages.
 
