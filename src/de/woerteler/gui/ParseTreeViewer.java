@@ -182,6 +182,7 @@ public final class ParseTreeViewer extends JPanel {
    */
   private synchronized void setTree(final Displayer t) {
     tree = t;
+    if(t == null) return;
     final Dimension dim = getTreeViewSize();
     final int nw = dim.width - 2 * MARGIN;
     final int nh = dim.height - 2 * MARGIN;
