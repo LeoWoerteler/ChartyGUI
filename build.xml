@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="create_run_jar" name="Create Runnable Jar for Project ParserViewer">
+	<property name="license" location="LICENSE"/>  
+	<property name="bin" location="bin"/>
+	<property name="res" location="resources"/>
 	<target name="create_run_jar">
         <jar destfile="ChartyGUI.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="de.woerteler.gui.ChartyGUI"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="bin"/>
-            <fileset dir="resources" />
+            <fileset dir="${bin}"/>
+            <fileset dir="${res}" />
+        	<fileset file="${license}" />
         </jar>
     </target>
 </project>
