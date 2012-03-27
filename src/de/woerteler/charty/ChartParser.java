@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import de.woerteler.tree.ImageDisplay;
-
 /**
  * This class implements a chart parser.
  *
@@ -28,7 +26,7 @@ public final class ChartParser {
 
   /**
    * Constructor taking the grammar an tokens to parse.
-   *
+   * 
    * @param g grammar
    * @param tok tokens to parse
    * @param list info listener, may be {@code null}
@@ -42,7 +40,7 @@ public final class ChartParser {
 
   /**
    * Parses a sequence of tokens.
-   *
+   * 
    * @param g grammar definition
    * @param tok tokens to parse
    * @param listener info listener, may be {@code null}
@@ -50,7 +48,8 @@ public final class ChartParser {
    * @throws ParserException if the parser isn't successful
    */
   public static ParseTree[] parse(final Grammar g, final String[] tok,
-      final ParserInfoListener listener) throws ParserException {
+      final ParserInfoListener listener)
+          throws ParserException {
     final List<ParseTree> trees = new ChartParser(g, tok, listener).parse();
     return trees.toArray(new ParseTree[trees.size()]);
   }
@@ -90,7 +89,7 @@ public final class ChartParser {
       } else {
         log("Chart", "Inactive: " + e);
         if(e.isOverspanning()) {
-          res.add(new ParseTree(e, new ImageDisplay()));
+          res.add(new ParseTree(e));
         }
       }
 

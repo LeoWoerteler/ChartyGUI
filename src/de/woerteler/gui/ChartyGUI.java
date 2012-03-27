@@ -1,10 +1,13 @@
 package de.woerteler.gui;
 
+import static de.woerteler.gui.GUIActions.ActionID.*;
+
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Menu;
-import java.awt.MenuBar;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,11 +16,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -48,6 +55,7 @@ public final class ChartyGUI extends JFrame {
 
   /** Cache for icons. */
   private static final HashMap<String, ImageIcon> ICON_MAP;
+
   static {
     ICON_MAP = new HashMap<String, ImageIcon>();
   }
@@ -81,11 +89,32 @@ public final class ChartyGUI extends JFrame {
     final Controller ctrl = new Controller(this, model);
 
     // menu bar
-    final MenuBar menuBar = new MenuBar();
-    setMenuBar(menuBar);
-    final Menu fileMenu = new Menu("File");
+    final JMenuBar menuBar = new JMenuBar();
+    setJMenuBar(menuBar);
+    final JMenu fileMenu = new JMenu("File");
     menuBar.add(fileMenu);
-
+    fileMenu.add(ctrl.getActionFor(GRAMMAR_OPEN));
+    fileMenu.add(ctrl.getActionFor(GRAMMAR_SAVE));
+    fileMenu.addSeparator();
+    fileMenu.add(ctrl.getActionFor(EXIT));
+    final JMenu displayMenu = new JMenu("Display");
+    menuBar.add(displayMenu);
+    final ButtonGroup displayGroup = new ButtonGroup();
+    final JRadioButtonMenuItem dd = new JRadioButtonMenuItem(
+        ctrl.getActionFor(DISPLAY_DEFAULT));
+    dd.setSelected(true);
+    displayGroup.add(dd);
+    displayMenu.add(dd);
+    final JRadioButtonMenuItem db = new JRadioButtonMenuItem(
+        ctrl.getActionFor(DISPLAY_BOX));
+    displayGroup.add(db);
+    displayMenu.add(db);
+    final JRadioButtonMenuItem dl = new JRadioButtonMenuItem(
+        ctrl.getActionFor(DISPLAY_LATEX));
+    displayGroup.add(dl);
+    displayMenu.add(dl);
+    displayMenu.addSeparator();
+    displayMenu.add(ctrl.getActionFor(VIEW_SAVE));
     // Left side: edit grammar and phrase
     editor = new GrammarEditor(ctrl);
     model.setDocument(editor.getDocument());
@@ -156,7 +185,7 @@ public final class ChartyGUI extends JFrame {
    * @param name name of the icon
    * @return icon
    */
-  static ImageIcon icon(final String name) {
+  public static ImageIcon icon(final String name) {
     if(!ICON_MAP.containsKey(name)) {
       try {
         final InputStream in = IOUtils.getResource("icons/" + name + ".png");
@@ -170,11 +199,7 @@ public final class ChartyGUI extends JFrame {
 
   @Override
   public void setTitle(final String title) {
-    if(title == null) {
-      super.setTitle(NAME);
-    } else {
-      super.setTitle(NAME + ": " + title);
-    }
+    super.setTitle(NAME + (title == null ? "" : ": " + title));
   }
 
   /**
@@ -182,11 +207,12 @@ public final class ChartyGUI extends JFrame {
    * 
    * @param msg message
    */
-  void showError(final String msg) {
+  public void showError(final String msg) {
+    final Component cgui = this;
     SwingUtilities.invokeLater(new Runnable() {
       @Override
       public void run() {
-        JOptionPane.showMessageDialog(ChartyGUI.this, msg, "Error",
+        JOptionPane.showMessageDialog(cgui, msg, "Error",
             JOptionPane.ERROR_MESSAGE);
       }
     });
@@ -198,14 +224,12 @@ public final class ChartyGUI extends JFrame {
    * @param dir the starting directory
    * @return the chosen file or {@code null}, if nothing was chosen
    */
-  File chooseFile(final File dir) {
+  public File chooseFile(final File dir) {
     final JFileChooser choose = new JFileChooser(dir);
     choose.setMultiSelectionEnabled(false);
     choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    if(choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-      return choose.getSelectedFile();
-    }
-    return null;
+    return choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION
+        ? choose.getSelectedFile() : null;
   }
 
   /**
@@ -215,13 +239,33 @@ public final class ChartyGUI extends JFrame {
    * @param pos current position
    * @param num current number of parse trees
    */
-  void showParseTree(final Displayer tree, final int pos, final int num) {
+  public void showParseTree(final Displayer tree, final int pos, final int num) {
     treeViewer.showParseTree(tree, pos, num);
   }
 
   /** Rewinds the caret position in the grammar editor. */
-  void rewindGrammar() {
+  public void rewindGrammar() {
     editor.rewind();
+  }
+
+  /**
+   * Saves the current view of the syntax tree.
+   * 
+   * @param file The destination.
+   */
+  public void saveView(final File file) {
+    final Dimension dim = treeViewer.getTreeViewSize();
+    final BufferedImage img = new BufferedImage(dim.width, dim.height,
+        BufferedImage.TYPE_INT_ARGB);
+    final Graphics2D gfx = (Graphics2D) img.getGraphics();
+    treeViewer.paintSyntaxTree(gfx);
+    gfx.dispose();
+    final boolean isPng = file.getName().endsWith(".png");
+    try {
+      ImageIO.write(img, isPng ? "PNG" : "JPG", file);
+    } catch(final IOException e) {
+      showError(e.getMessage());
+    }
   }
 
 }

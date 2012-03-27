@@ -24,9 +24,7 @@ public final class Grammar {
     public int compare(final String[] o1, final String[] o2) {
       for (int i = 0, ln = Math.min(o1.length, o2.length); i < ln; i++) {
         final int cmp = o1[i].compareTo(o2[i]);
-        if (cmp != 0) {
-          return cmp;
-        }
+        if (cmp != 0) return cmp;
       }
       return o1.length - o2.length;
     }
@@ -60,29 +58,24 @@ public final class Grammar {
       if (!line.startsWith("#")) {
 
         final String[] parts = line.split("\\s+");
-        if (parts.length < 2 || !"->".equals(parts[1])) {
-          throw new GrammarSyntaxException("Can't understand "
-              + "production '" + line + "'.");
-        }
+        if(parts.length < 2 || !"->".equals(parts[1])) throw new GrammarSyntaxException(
+            "Can't understand " +
+                "production '" + line + "'.");
 
         final String lhs = parts[0];
         final String[] rhs = Arrays.copyOfRange(parts, 2, parts.length);
-        if (rhs.length == 0) {
-          throw new GrammarSyntaxException("Right hand side missing"
-              + " in '" + line + "'.");
-        }
+        if (rhs.length == 0) throw new GrammarSyntaxException("Right hand side missing"
+            + " in '" + line + "'.");
 
-        if (!addProduction(lhs, rhs)) {
-          throw new GrammarSyntaxException("Production '" + line
-              + "' is declared more than once.");
-        }
+        if(!addProduction(lhs, rhs)) throw new GrammarSyntaxException("Production '"
+            + line
+            + "' is declared more than once.");
       }
     }
 
-    if (productions.isEmpty()) {
-      throw new GrammarSyntaxException("There must be at least one"
+    if(productions.isEmpty()) throw new GrammarSyntaxException(
+        "There must be at least one"
           + " production.");
-    }
   }
 
   /**
@@ -96,9 +89,7 @@ public final class Grammar {
   public Set<String> getLHS(final String rhs) throws ParserException {
     final Set<String> set = safe(leftmost.get(rhs));
     set.retainAll(singletons);
-    if (set.isEmpty()) {
-      throw new ParserException("Unknown terminal '" + rhs + "'.");
-    }
+    if (set.isEmpty()) throw new ParserException("Unknown terminal '" + rhs + "'.");
     return set;
   }
 
@@ -129,7 +120,7 @@ public final class Grammar {
    * @param set the set, potentially {@code null}
    * @return {@code null}-safe set
    */
-  private <T> Set<T> safe(final Set<T> set) {
+  private static <T> Set<T> safe(final Set<T> set) {
     return set == null ? Collections.<T>emptySet() : set;
   }
 
@@ -148,7 +139,9 @@ public final class Grammar {
       productions.put(lhs, set);
     }
     // insert into singleton set
-    if (rhs.length == 1) singletons.add(lhs);
+    if (rhs.length == 1) {
+      singletons.add(lhs);
+    }
 
     // insert into leftmost-token map
     Set<String> lefts = leftmost.get(rhs[0]);

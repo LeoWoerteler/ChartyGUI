@@ -1,5 +1,7 @@
 package de.woerteler.gui;
 
+import static de.woerteler.gui.GUIActions.ActionID.*;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -7,8 +9,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -50,23 +50,22 @@ public final class ParseTreeViewer extends JPanel {
   private static final int MARGIN = 10;
 
   /** The x offset of the tree. */
-  double offX;
+  private double offX;
 
   /** The y offset of the tree. */
-  double offY;
+  private double offY;
 
   /** The scaling of the tree. */
-  double zoom;
+  private double zoom;
 
   /**
    * Constructor.
    * 
    * @param ctrl controller
    */
-  ParseTreeViewer(final Controller ctrl) {
+  public ParseTreeViewer(final Controller ctrl) {
     super(new BorderLayout());
     final JPanel nav = new JPanel(new BorderLayout());
-
     display = new JComponent() {
 
       /** Serial version UID. */
@@ -75,22 +74,7 @@ public final class ParseTreeViewer extends JPanel {
       @Override
       protected void paintComponent(final Graphics g) {
         final Graphics2D gfx = (Graphics2D) g.create();
-        gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-            RenderingHints.VALUE_ANTIALIAS_ON);
-        final Dimension dim = getSize();
-        gfx.setColor(Color.WHITE);
-        // drawn rectangle is 1 smaller in every direction
-        gfx.fillRect(0, 0, dim.width + 1, dim.height + 1);
-        if(dim.width > 2 * MARGIN && dim.height > 2 * MARGIN) {
-          final Displayer d = getTree();
-          if(d != null) {
-            final Graphics2D g2 = (Graphics2D) gfx.create();
-            g2.translate(offX, offY);
-            g2.scale(zoom, zoom);
-            d.drawTree(g2);
-            g2.dispose();
-          }
-        }
+        paintSyntaxTree(gfx);
         gfx.dispose();
       }
 
@@ -159,24 +143,14 @@ public final class ParseTreeViewer extends JPanel {
     label.setFont(label.getFont().deriveFont(Font.BOLD));
     nav.add(label, BorderLayout.CENTER);
 
-    left = new JButton(ChartyGUI.icon("arrow_left"));
+    left = new JButton(ctrl.getActionFor(VIEW_PREV));
+    left.setText(null);
     left.setEnabled(false);
-    left.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        ctrl.navigate(false);
-      }
-    });
     nav.add(left, BorderLayout.WEST);
 
-    right = new JButton(ChartyGUI.icon("arrow_right"));
+    right = new JButton(ctrl.getActionFor(VIEW_NEXT));
+    right.setText(null);
     right.setEnabled(false);
-    right.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        ctrl.navigate(true);
-      }
-    });
     nav.add(right, BorderLayout.EAST);
     add(nav, BorderLayout.SOUTH);
   }
@@ -188,7 +162,7 @@ public final class ParseTreeViewer extends JPanel {
    * @param pos current position
    * @param num current number of parse trees
    */
-  void showParseTree(final Displayer disp, final int pos, final int num) {
+  public void showParseTree(final Displayer disp, final int pos, final int num) {
     if(disp == null) {
       label.setText("nothing to show");
       left.setEnabled(false);
@@ -208,7 +182,8 @@ public final class ParseTreeViewer extends JPanel {
    */
   private synchronized void setTree(final Displayer t) {
     tree = t;
-    final Dimension dim = display.getSize();
+    if(t == null) return;
+    final Dimension dim = getTreeViewSize();
     final int nw = dim.width - 2 * MARGIN;
     final int nh = dim.height - 2 * MARGIN;
     final Rectangle2D bbox = tree.getBoundingBox();
@@ -219,7 +194,7 @@ public final class ParseTreeViewer extends JPanel {
     final double rw = nw / bbox.getWidth();
     final double rh = nh / bbox.getHeight();
     final double factor = rw < rh ? rw : rh;
-    zoomTo(dim.width / 2.0, dim.height / 2.0, factor);
+    zoom(factor);
   }
 
   /**
@@ -227,7 +202,7 @@ public final class ParseTreeViewer extends JPanel {
    * 
    * @return tree
    */
-  synchronized Displayer getTree() {
+  public synchronized Displayer getTree() {
     return tree;
   }
 
@@ -273,6 +248,16 @@ public final class ParseTreeViewer extends JPanel {
   }
 
   /**
+   * Zooms towards the center of the display area.
+   * 
+   * @param factor The zoom factor.
+   */
+  public void zoom(final double factor) {
+    final Dimension dim = getTreeViewSize();
+    zoomTo(dim.width / 2.0, dim.height / 2.0, factor);
+  }
+
+  /**
    * Getter.
    * 
    * @return the x offset
@@ -288,6 +273,39 @@ public final class ParseTreeViewer extends JPanel {
    */
   public double getOffsetY() {
     return offY;
+  }
+
+  /**
+   * Paints the syntax tree to the given device.
+   * 
+   * @param gfx The graphics device.
+   */
+  public void paintSyntaxTree(final Graphics2D gfx) {
+    gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON);
+    final Dimension dim = getTreeViewSize();
+    gfx.setColor(Color.WHITE);
+    // drawn rectangle is 1 smaller in every direction
+    gfx.fillRect(0, 0, dim.width + 1, dim.height + 1);
+    if(dim.width > 2 * MARGIN && dim.height > 2 * MARGIN) {
+      final Displayer d = getTree();
+      if(d != null) {
+        final Graphics2D g2 = (Graphics2D) gfx.create();
+        g2.translate(offX, offY);
+        g2.scale(zoom, zoom);
+        d.drawTree(g2);
+        g2.dispose();
+      }
+    }
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return The size of the syntax tree view component i.e. the size of the drawing area.
+   */
+  public Dimension getTreeViewSize() {
+    return display.getSize();
   }
 
 }
