@@ -21,8 +21,8 @@ public final class Programs {
   private static final List<File> PATH = new ArrayList<File>();
   /** Extension of executable file types on the path. */
   private static final List<String> PATH_EXT = new ArrayList<String>();
-  static {
 
+  static {
     String path = System.getProperty("java.library.path", "");
     final String path2 = System.getenv("PATH");
     if (path2 != null) {
@@ -68,9 +68,7 @@ public final class Programs {
     for (final File f : PATH) {
       for (final String ext : PATH_EXT) {
         final File p = new File(f, prog + ext);
-        if (p.isFile()) {
-          return p.getAbsolutePath();
-        }
+        if (p.isFile()) return p.getAbsolutePath();
       }
     }
     return null;

@@ -1,5 +1,6 @@
 package de.woerteler.charty;
 
+
 /**
  * Interface for receivers of info messages from the parser.
  *
