@@ -1,5 +1,7 @@
 package de.woerteler.gui;
 
+import static de.woerteler.gui.ChartyGUI.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -91,8 +93,11 @@ public final class Controller implements ParserInfoListener {
   public void saveGrammar() {
     final File f = model.getOpenedFile();
     if(f == null) {
+      // TODO: show save as.. dialog for non existing files
       gui.showError("There's no open file to save!");
+      return;
     }
+    // TODO: save grammar
   }
 
   /** Opens a new grammar definition. */
@@ -189,6 +194,7 @@ public final class Controller implements ParserInfoListener {
           try {
             trees = ChartParser.parse(new Grammar(new StringReader(g)),
                 Tokenizer.tokenize(text), Controller.this);
+            INI.set("last", "phrase", text);
           } catch(final ParserException e) {
             cg.showError("Parser error:\n" + e.getMessage());
           } catch(final GrammarSyntaxException e) {

@@ -1,5 +1,6 @@
 package de.woerteler.gui;
 
+import static de.woerteler.gui.ChartyGUI.*;
 import static de.woerteler.gui.GUIActions.ActionID.*;
 
 import java.awt.BorderLayout;
@@ -44,7 +45,8 @@ public final class PhraseInput extends JPanel {
     put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), PARSE);
     input.getActionMap().put(PARSE, ctrl.getActionFor(PARSE));
 
-    input.setText(EXAMPLE_TEXT);
+    final String text = INI.get("last", "phrase", EXAMPLE_TEXT);
+    input.setText(text);
     add(input, BorderLayout.CENTER);
 
     add(new JButton(ctrl.getActionFor(PARSE)), BorderLayout.LINE_END);

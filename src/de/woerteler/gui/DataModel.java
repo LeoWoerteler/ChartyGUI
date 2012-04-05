@@ -1,5 +1,7 @@
 package de.woerteler.gui;
 
+import static de.woerteler.gui.ChartyGUI.*;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -141,6 +143,10 @@ public final class DataModel {
     opened = f;
     if(f != null) {
       gui.setTitle(f.getPath());
+      INI.setObject("last", "grammar", f);
+    } else {
+      gui.setTitle(null);
+      INI.set("last", "grammar", "");
     }
     try {
       grammar.remove(0, grammar.getLength());

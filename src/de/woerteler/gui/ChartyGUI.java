@@ -8,7 +8,9 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -29,6 +31,7 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import jkit.io.convert.Converter;
 import jkit.io.ini.IniReader;
 import de.woerteler.charty.Displayer;
 import de.woerteler.util.IOUtils;
@@ -54,9 +57,9 @@ public final class ChartyGUI extends JFrame {
   private static final long serialVersionUID = 6440369013993516988L;
 
   /** Preferred width of the window. */
-  private static final int WINDOW_WIDTH = 1024;
+  private static final int WINDOW_WIDTH = INI.getInteger("window", "width", 1024);
   /** Preferred height of the window. */
-  private static final int WINDOW_HEIGHT = 768;
+  private static final int WINDOW_HEIGHT = INI.getInteger("window", "height", 768);
 
   /** Icon sizes provided. */
   private static final int[] ICON_SIZES = { 16, 32, 64, 128, 256};
@@ -78,7 +81,6 @@ public final class ChartyGUI extends JFrame {
    * Constructor.
    */
   private ChartyGUI() {
-    setTitle(null);
     setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 
     // load logo
@@ -140,9 +142,12 @@ public final class ChartyGUI extends JFrame {
     view.setResizeWeight(1.0 / 2);
 
     try {
-      final InputStream psg = IOUtils.getResource("PSG1.txt");
-      final byte[] contents = IOUtils.readFully(psg);
-      model.setOpenedFile(null, new String(contents, Charset.forName("UTF-8")));
+      final File grammar = INI.getObject("last", "grammar", Converter.FILE_CONVERTER, "");
+      final InputStream psg = (grammar == null || !grammar.exists())
+          ? IOUtils.getResource("PSG1.txt")
+              : new BufferedInputStream(new FileInputStream(grammar));
+          final byte[] contents = IOUtils.readFully(psg);
+      model.setOpenedFile(grammar, new String(contents, Charset.forName("UTF-8")));
     } catch(final IOException e) {
       e.printStackTrace();
     }

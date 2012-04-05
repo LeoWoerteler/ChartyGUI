@@ -60,7 +60,8 @@ public final class IOUtils {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     while (true) {
       final int read = in.read(buff);
-      if (read <= 0) {
+      // does not stop when bytes not yet available
+      if(read < 0) {
         break;
       }
       baos.write(buff, 0, read);
@@ -138,10 +139,8 @@ public final class IOUtils {
     final byte[] out = readFully(proc.getInputStream());
     final byte[] err = readFully(proc.getErrorStream());
 
-    if (proc.waitFor() != 0) {
-      throw new IOException(cmd + " didn't return normally:\n"
-          + new String(out) + "\n\n" + new String(err));
-    }
+    if (proc.waitFor() != 0) throw new IOException(cmd + " didn't return normally:\n"
+        + new String(out) + "\n\n" + new String(err));
 
     return out;
   }
@@ -159,9 +158,7 @@ public final class IOUtils {
     final ClassLoader loader = IOUtils.class.getClassLoader();
     for (final String p : new String[] { "", "/" }) {
       final InputStream in = loader.getResourceAsStream(p + relPath);
-      if (in != null) {
-        return in;
-      }
+      if (in != null) return in;
     }
     return new BufferedInputStream(new FileInputStream("resources/"
         + relPath));
