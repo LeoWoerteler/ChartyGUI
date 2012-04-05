@@ -16,7 +16,8 @@ public interface ArrayConverter<T> extends Converter<T> {
   /**
    * Creates a new array of the needed type and the given length.
    * 
-   * @param length The length of the new array.
+   * @param length
+   *            The length of the new array.
    * @return The array.
    */
   T[] array(int length);
@@ -24,8 +25,8 @@ public interface ArrayConverter<T> extends Converter<T> {
   /**
    * Return the default value.
    * 
-   * @return The default value. It is returned when the field is not set or the
-   *         Strings in the array cannot be converted.
+   * @return The default value. It is returned when the field is not set or
+   *         the Strings in the array cannot be converted.
    */
   T[] defaultValue();
 

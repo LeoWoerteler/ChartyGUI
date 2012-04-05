@@ -1,6 +1,5 @@
 package jkit.io.convert;
 
-
 /**
  * A converter that converts a String into a class and loads it.
  * 
@@ -28,7 +27,8 @@ public class ClassConverter<T> implements Converter<Class<T>> {
   /**
    * Loading helper.
    * 
-   * @param name The name of the class.
+   * @param name
+   *            The name of the class.
    * @return The loaded class.
    */
   @SuppressWarnings("unchecked")

@@ -29,6 +29,7 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import jkit.io.ini.IniReader;
 import de.woerteler.charty.Displayer;
 import de.woerteler.util.IOUtils;
 
@@ -36,8 +37,15 @@ import de.woerteler.util.IOUtils;
  * The JFrame containing the GUI application.
  * 
  * @author Leo Woerteler
+ * @author Joschi <josua.krause@googlemail.com>
  */
 public final class ChartyGUI extends JFrame {
+
+  /**
+   * The ini file that holds all settings for the charty application.
+   */
+  public static final IniReader INI = IniReader.createFailProofIniReader(
+      new File("./charty.ini"), true);
 
   /** The name of this application. */
   private static final String NAME = "ChartyGUI 0.1 α 1";
@@ -157,7 +165,14 @@ public final class ChartyGUI extends JFrame {
     // to the center of the screen
     setLocationRelativeTo(null);
     // shows unresolved / cycling threads -- safer close
+    // ensures call of dispose
     setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+  }
+
+  @Override
+  public void dispose() {
+    writeIniOnChange();
+    super.dispose();
   }
 
   /**
@@ -265,6 +280,19 @@ public final class ChartyGUI extends JFrame {
       ImageIO.write(img, isPng ? "PNG" : "JPG", file);
     } catch(final IOException e) {
       showError(e.getMessage());
+    }
+  }
+
+  /**
+   * Saves the ini file if the content has been changed since loading the file.
+   */
+  public void writeIniOnChange() {
+    if(INI.hasChanged()) {
+      try {
+        INI.writeIni();
+      } catch(final Exception e) {
+        showError("Error writing the ini file!");
+      }
     }
   }
 

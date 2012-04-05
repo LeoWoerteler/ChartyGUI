@@ -17,7 +17,8 @@ public interface Converter<T> {
    * {@link Object#toString() toString()} method must return the exact same
    * String.
    * 
-   * @param s The String.
+   * @param s
+   *            The String.
    * @return The converted object or <code>null</code> if the String could not
    *         be converted.
    */

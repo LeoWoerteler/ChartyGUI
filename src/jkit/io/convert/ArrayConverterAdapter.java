@@ -77,7 +77,8 @@ public abstract class ArrayConverterAdapter<T> implements ArrayConverter<T> {
   /**
    * Warning suppressing worm hole.
    * 
-   * @param length The length of the array.
+   * @param length
+   *            The length of the array.
    * @return The created array.
    */
   // safe warning remover due to different java compiler settings
