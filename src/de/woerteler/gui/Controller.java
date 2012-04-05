@@ -4,6 +4,7 @@ import static de.woerteler.gui.ChartyGUI.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 
@@ -91,13 +92,28 @@ public final class Controller implements ParserInfoListener {
 
   /** Saves the currently open grammar definition. */
   public void saveGrammar() {
-    final File f = model.getOpenedFile();
+    File f = model.getOpenedFile();
     if(f == null) {
-      // TODO: show save as.. dialog for non existing files
-      gui.showError("There's no open file to save!");
+      final JFileChooser saveDialog = new JFileChooser(new File(
+          System.getProperty("user.home")));
+      saveDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+      final int result = saveDialog.showSaveDialog(gui);
+      f = saveDialog.getSelectedFile();
+      if(result != JFileChooser.APPROVE_OPTION || f == null) return;
+    }
+
+    final String content = model.getGrammar();
+    try {
+      final PrintWriter pw = new PrintWriter(f, "UTF-8");
+      pw.append(content);
+      pw.flush();
+      pw.close();
+    } catch(final IOException e) {
+      gui.showError("Error writing grammar: " + e.getMessage());
       return;
     }
-    // TODO: save grammar
+
+    model.setOpenedFile(f, content);
   }
 
   /** Opens a new grammar definition. */

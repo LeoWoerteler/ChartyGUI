@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -53,6 +54,10 @@ public final class ChartyGUI extends JFrame {
   /** The name of this application. */
   private static final String NAME = "ChartyGUI 0.1 α 1";
 
+  /** The info text for saving editor changes when closing the window. */
+  private static final String SAVE_INFO = "<html>The grammar has unsaved changes." +
+      "<br>Would you like to save it now?";
+
   /** Serial version UID. */
   private static final long serialVersionUID = 6440369013993516988L;
 
@@ -74,8 +79,11 @@ public final class ChartyGUI extends JFrame {
   /** Parse tree viewer. */
   private final ParseTreeViewer treeViewer;
 
-  /** GRammar editor. */
+  /** Grammar editor. */
   private final GrammarEditor editor;
+
+  /** The save action. It is kept in the gui for saving when closing the window. */
+  private final Action saveAction;
 
   /**
    * Constructor.
@@ -104,7 +112,8 @@ public final class ChartyGUI extends JFrame {
     final JMenu fileMenu = new JMenu("File");
     menuBar.add(fileMenu);
     fileMenu.add(ctrl.getActionFor(GRAMMAR_OPEN));
-    fileMenu.add(ctrl.getActionFor(GRAMMAR_SAVE));
+    saveAction = ctrl.getActionFor(GRAMMAR_SAVE);
+    fileMenu.add(saveAction);
     fileMenu.addSeparator();
     fileMenu.add(ctrl.getActionFor(EXIT));
     final JMenu displayMenu = new JMenu("Display");
@@ -147,7 +156,8 @@ public final class ChartyGUI extends JFrame {
           ? IOUtils.getResource("PSG1.txt")
               : new BufferedInputStream(new FileInputStream(grammar));
           final byte[] contents = IOUtils.readFully(psg);
-      model.setOpenedFile(grammar, new String(contents, Charset.forName("UTF-8")));
+          model.setOpenedFile(grammar.exists() ? grammar : null,
+              new String(contents, Charset.forName("UTF-8")));
     } catch(final IOException e) {
       e.printStackTrace();
     }
@@ -176,6 +186,19 @@ public final class ChartyGUI extends JFrame {
 
   @Override
   public void dispose() {
+    if(grammarHasChanged) {
+      final int result = JOptionPane.showConfirmDialog(this, SAVE_INFO,
+          "Unsaved changes...", JOptionPane.YES_NO_CANCEL_OPTION);
+      if(result == JOptionPane.CANCEL_OPTION) {
+        // abort dispose
+        setVisible(true);
+        return;
+      }
+      if(result == JOptionPane.YES_OPTION) {
+        // since it is our own action we are safe to pass no action event
+        saveAction.actionPerformed(null);
+      }
+    }
     writeIniOnChange();
     super.dispose();
   }
@@ -217,9 +240,25 @@ public final class ChartyGUI extends JFrame {
     return ICON_MAP.get(name);
   }
 
+  /**
+   * Whether the grammar has been changed in the editor since the last save.
+   */
+  private boolean grammarHasChanged;
+
+  /**
+   * Sets the title of the window.
+   * 
+   * @param title The title after the program name.
+   * @param changed Whether the editor has changes.
+   */
+  public void setTitle(final String title, final boolean changed) {
+    grammarHasChanged = changed;
+    super.setTitle(NAME + (title == null ? "" : ": " + title) + (changed ? "*" : ""));
+  }
+
   @Override
   public void setTitle(final String title) {
-    super.setTitle(NAME + (title == null ? "" : ": " + title));
+    setTitle(title, false);
   }
 
   /**

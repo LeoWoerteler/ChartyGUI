@@ -5,6 +5,8 @@ import static de.woerteler.gui.ChartyGUI.*;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
@@ -108,6 +110,28 @@ public final class DataModel {
    */
   public void setDocument(final Document doc) {
     grammar = doc;
+    grammar.addDocumentListener(new DocumentListener() {
+
+      @Override
+      public void removeUpdate(final DocumentEvent e) {
+        changed();
+      }
+
+      @Override
+      public void insertUpdate(final DocumentEvent e) {
+        changed();
+      }
+
+      @Override
+      public void changedUpdate(final DocumentEvent e) {
+        changed();
+      }
+
+      private void changed() {
+        refreshTitle(true);
+      }
+
+    });
   }
 
   /**
@@ -141,13 +165,6 @@ public final class DataModel {
    */
   public synchronized void setOpenedFile(final File f, final String contents) {
     opened = f;
-    if(f != null) {
-      gui.setTitle(f.getPath());
-      INI.setObject("last", "grammar", f);
-    } else {
-      gui.setTitle(null);
-      INI.set("last", "grammar", "");
-    }
     try {
       grammar.remove(0, grammar.getLength());
       grammar.insertString(0, contents, null);
@@ -155,6 +172,21 @@ public final class DataModel {
     } catch(final BadLocationException e) {
       e.printStackTrace();
     }
+    if(f != null) {
+      INI.setObject("last", "grammar", f);
+    } else {
+      INI.set("last", "grammar", "");
+    }
+    refreshTitle(false);
+  }
+
+  /**
+   * Refreshes the main window title.
+   * 
+   * @param changed Whether the grammar editor has changes.
+   */
+  public void refreshTitle(final boolean changed) {
+    gui.setTitle(opened != null ? opened.getPath() : null, changed);
   }
 
   /**

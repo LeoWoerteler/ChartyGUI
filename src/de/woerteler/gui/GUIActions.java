@@ -116,7 +116,7 @@ public class GUIActions {
       }
 
     });
-    actionMap.put(ActionID.GRAMMAR_SAVE, new AbstractAction("Save grammar...",
+    actionMap.put(ActionID.GRAMMAR_SAVE, new AbstractAction("Save grammar",
         icon("save")) {
 
       private static final long serialVersionUID = -8903820399182467464L;
