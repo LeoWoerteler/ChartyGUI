@@ -214,11 +214,7 @@ public final class ChartyGUI extends JFrame {
       UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus."
           + "NimbusLookAndFeel");
     } catch(final Exception e) {
-      try {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      } catch(final Exception e2) {
-        e2.printStackTrace();
-      }
+      // system look and feel already used -- proceed
     }
     new ChartyGUI().setVisible(true);
   }
