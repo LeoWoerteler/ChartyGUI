@@ -90,6 +90,12 @@ public final class ChartyGUI extends JFrame {
     }
   }
 
+  /**
+   * The initial window extended state.
+   */
+  private static final int WINDOW_EXTEND_STATE =
+      INI.getInteger("window", "state", NORMAL);
+
   /** Icon sizes provided. */
   private static final int[] ICON_SIZES = { 16, 32, 64, 128, 256};
 
@@ -201,7 +207,7 @@ public final class ChartyGUI extends JFrame {
     vertical.setResizeWeight(1.0 / 2);
     content.add(vertical, BorderLayout.CENTER);
 
-    // display the window
+    // make the window ready for display
     pack();
     input.focus();
 
@@ -213,6 +219,9 @@ public final class ChartyGUI extends JFrame {
     } else {
       setLocation(initialPosition[0], initialPosition[1]);
     }
+
+    // set extended state
+    setExtendedState(WINDOW_EXTEND_STATE);
 
     // shows unresolved / cycling threads -- safer close
     // ensures call of dispose
@@ -363,7 +372,14 @@ public final class ChartyGUI extends JFrame {
    * Refreshes the ini values responsible for the window.
    */
   private void refreshIniValues() {
+    // window extended state
+    final int state = getExtendedState();
+    if(state != WINDOW_EXTEND_STATE) {
+      INI.setInteger("window", "state", state);
+    }
+    setExtendedState(NORMAL); // get the real window bounds
     final Rectangle box = getBounds();
+    setExtendedState(state); // restore the extended state
     // window dimension
     if(box.width != WINDOW_WIDTH) {
       INI.setInteger("window", "width", box.width);
