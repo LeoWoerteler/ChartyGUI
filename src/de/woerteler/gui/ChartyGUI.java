@@ -200,6 +200,7 @@ public final class ChartyGUI extends JFrame {
         saveAction.actionPerformed(null);
       }
     }
+    refreshIniValues();
     writeIniOnChange();
     super.dispose();
   }
@@ -321,6 +322,20 @@ public final class ChartyGUI extends JFrame {
       ImageIO.write(img, isPng ? "PNG" : "JPG", file);
     } catch(final IOException e) {
       showError(e.getMessage());
+    }
+  }
+
+  /**
+   * Refreshes the ini values responsible for the window.
+   */
+  private void refreshIniValues() {
+    final int width = getWidth();
+    if(width != WINDOW_WIDTH) {
+      INI.setInteger("window", "width", width);
+    }
+    final int height = getHeight();
+    if(height != WINDOW_HEIGHT) {
+      INI.setInteger("window", "height", height);
     }
   }
 
