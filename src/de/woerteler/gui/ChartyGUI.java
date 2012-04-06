@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -32,6 +33,7 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import jkit.io.convert.ArrayConverterAdapter;
 import jkit.io.convert.Converter;
 import jkit.io.ini.IniReader;
 import de.woerteler.charty.Displayer;
@@ -66,6 +68,28 @@ public final class ChartyGUI extends JFrame {
   /** Preferred height of the window. */
   private static final int WINDOW_HEIGHT = INI.getInteger("window", "height", 768);
 
+  /**
+   * The initial window position or an empty array/<code>null</code> if it is in
+   * the center of the screen.
+   */
+  private static Integer[] initialPosition = INI.getArray("window", "pos",
+      new ArrayConverterAdapter<Integer>(new Integer[0]) {
+    @Override
+    public Integer convert(final String s) {
+      try {
+        return Integer.parseInt(s);
+      } catch(final NumberFormatException e) {
+        return null;
+      }
+    }
+  });
+
+  static {
+    if(initialPosition != null && initialPosition.length != 2) {
+      initialPosition = null;
+    }
+  }
+
   /** Icon sizes provided. */
   private static final int[] ICON_SIZES = { 16, 32, 64, 128, 256};
 
@@ -84,6 +108,9 @@ public final class ChartyGUI extends JFrame {
 
   /** The save action. It is kept in the gui for saving when closing the window. */
   private final Action saveAction;
+
+  /** Whether the window was in the center of the screen at start up. */
+  private final boolean wasInCenter;
 
   /**
    * Constructor.
@@ -178,8 +205,15 @@ public final class ChartyGUI extends JFrame {
     pack();
     input.focus();
 
-    // to the center of the screen
-    setLocationRelativeTo(null);
+    wasInCenter = initialPosition == null;
+    if(wasInCenter) {
+      // to the center of the screen
+      setLocationRelativeTo(null);
+      initialPosition = new Integer[] { getX(), getY()};
+    } else {
+      setLocation(initialPosition[0], initialPosition[1]);
+    }
+
     // shows unresolved / cycling threads -- safer close
     // ensures call of dispose
     setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -329,13 +363,31 @@ public final class ChartyGUI extends JFrame {
    * Refreshes the ini values responsible for the window.
    */
   private void refreshIniValues() {
-    final int width = getWidth();
-    if(width != WINDOW_WIDTH) {
-      INI.setInteger("window", "width", width);
+    final Rectangle box = getBounds();
+    // window dimension
+    if(box.width != WINDOW_WIDTH) {
+      INI.setInteger("window", "width", box.width);
     }
-    final int height = getHeight();
-    if(height != WINDOW_HEIGHT) {
-      INI.setInteger("window", "height", height);
+    if(box.height != WINDOW_HEIGHT) {
+      INI.setInteger("window", "height", box.height);
+    }
+    // window position
+    final Integer[] curPos = new Integer[] { box.x, box.y};
+    boolean needPosUpdate;
+    if(initialPosition == null || initialPosition.length != 2) {
+      needPosUpdate = true;
+    } else {
+      final boolean samePosition = box.x == initialPosition[0]
+          && box.y == initialPosition[1];
+      if(wasInCenter && samePosition) {
+        INI.set("window", "pos", "");
+        initialPosition = null;
+      }
+      needPosUpdate = !samePosition;
+    }
+    if(needPosUpdate) {
+      INI.setArray("window", "pos", curPos);
+      initialPosition = curPos;
     }
   }
 
