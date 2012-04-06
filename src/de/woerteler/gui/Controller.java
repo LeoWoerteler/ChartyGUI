@@ -92,7 +92,23 @@ public final class Controller implements ParserInfoListener {
 
   /** Saves the currently open grammar definition. */
   public void saveGrammar() {
-    File f = model.getOpenedFile();
+    saveGrammar(model.getOpenedFile());
+  }
+
+  /** Opens a save file dialog to save the grammar definition. */
+  public void saveGrammarAs() {
+    saveGrammar(null);
+  }
+
+  /**
+   * Saves the currently opened grammar to the given file or opens a save file
+   * dialog if the argument is <code>null</code>.
+   * 
+   * @param file The file to save the grammar to or <code>null</code> to open a
+   *          save file dialog.
+   */
+  private void saveGrammar(final File file) {
+    File f = file;
     if(f == null) {
       final JFileChooser saveDialog = new JFileChooser(new File(
           System.getProperty("user.home")));

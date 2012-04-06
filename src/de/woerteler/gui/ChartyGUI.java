@@ -114,6 +114,7 @@ public final class ChartyGUI extends JFrame {
     fileMenu.add(ctrl.getActionFor(GRAMMAR_OPEN));
     saveAction = ctrl.getActionFor(GRAMMAR_SAVE);
     fileMenu.add(saveAction);
+    fileMenu.add(ctrl.getActionFor(GRAMMAR_SAVE_AS));
     fileMenu.addSeparator();
     fileMenu.add(ctrl.getActionFor(EXIT));
     final JMenu displayMenu = new JMenu("Display");

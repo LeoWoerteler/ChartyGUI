@@ -33,6 +33,9 @@ public class GUIActions {
     /** Saves the current grammar. */
     GRAMMAR_SAVE,
 
+    /** Saves the current grammar with a save file dialog. */
+    GRAMMAR_SAVE_AS,
+
     /** Sets to the default syntax tree display method. */
     DISPLAY_DEFAULT,
 
@@ -124,6 +127,16 @@ public class GUIActions {
       @Override
       public void actionPerformed(final ActionEvent e) {
         ctrl.saveGrammar();
+      }
+
+    });
+    actionMap.put(ActionID.GRAMMAR_SAVE_AS, new AbstractAction("Save grammar as...") {
+
+      private static final long serialVersionUID = -4823837786555270274L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.saveGrammarAs();
       }
 
     });
