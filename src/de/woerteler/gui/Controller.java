@@ -167,35 +167,32 @@ public final class Controller implements ParserInfoListener {
     final int pos = model.getParseTreePos();
     final ParseTree[] trees = model.getParseTrees();
 
-    if(!next && pos == 0 || next && pos >= trees.length) return;
+    if(!next && pos <= 0 || next && pos >= trees.length - 1) return;
 
-    int npos;
-    if(next) {
-      npos = pos + 1;
-    } else {
-      npos = pos - 1;
-    }
-
-    try {
-      final Displayer disp = trees[npos].getDisplayer(method);
-      model.newParseTreePos(npos, disp);
-    } catch(final Exception e) {
-      gui.showError("Couldn't open parse tree:\n" + e.getMessage());
-    }
+    showTree(pos + (next ? 1 : -1));
   }
 
   /**
    * Ensures that the current syntax tree is redrawn.
    */
   public void refresh() {
-    final int pos = model.getParseTreePos();
+    showTree(model.getParseTreePos());
+  }
+
+  /**
+   * Shows the n'th syntax tree.
+   * 
+   * @param pos The position of the syntax tree in the list of parse trees.
+   */
+  public void showTree(final int pos) {
     final ParseTree[] trees = model.getParseTrees();
-    if(pos >= trees.length) return;
+    if(pos < 0 || pos >= trees.length) return;
     try {
       final Displayer disp = trees[pos].getDisplayer(method);
       model.newParseTreePos(pos, disp);
     } catch(final Exception e) {
       gui.showError("Couldn't open parse tree:\n" + e.getMessage());
+      model.newParseTreePos(0, null);
     }
   }
 
@@ -214,7 +211,6 @@ public final class Controller implements ParserInfoListener {
     final Object pl = parseLock;
     final DataModel m = model;
     final ChartyGUI cg = gui;
-    final DisplayMethod dm = method;
     final Thread t = new Thread() {
 
       @Override
@@ -238,13 +234,7 @@ public final class Controller implements ParserInfoListener {
             return;
           }
 
-          try {
-            final Displayer disp = trees[0].getDisplayer(dm);
-            m.newParseTreePos(0, disp);
-          } catch(final Exception e) {
-            m.newParseTreePos(0, null);
-            cg.showError("Couldn't open parse tree:\n" + e.getMessage());
-          }
+          showTree(0);
         }
       }
 

@@ -354,8 +354,8 @@ public final class ChartyGUI extends JFrame {
    * @param file The destination.
    */
   public void saveView(final File file) {
-    final Dimension dim = treeViewer.getTreeViewSize();
-    final BufferedImage img = new BufferedImage(dim.width, dim.height,
+    final Rectangle box = treeViewer.getTreeViewSize();
+    final BufferedImage img = new BufferedImage(box.width, box.height,
         BufferedImage.TYPE_INT_ARGB);
     final Graphics2D gfx = (Graphics2D) img.getGraphics();
     treeViewer.paintSyntaxTree(gfx);

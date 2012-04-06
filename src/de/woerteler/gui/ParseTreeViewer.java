@@ -4,10 +4,10 @@ import static de.woerteler.gui.GUIActions.ActionID.*;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -182,10 +182,13 @@ public final class ParseTreeViewer extends JPanel {
    */
   private synchronized void setTree(final Displayer t) {
     tree = t;
-    if(t == null) return;
-    final Dimension dim = getTreeViewSize();
-    final int nw = dim.width - 2 * MARGIN;
-    final int nh = dim.height - 2 * MARGIN;
+    if(t == null) {
+      display.repaint();
+      return;
+    }
+    final Rectangle box = getTreeViewSize();
+    final int nw = box.width - 2 * MARGIN;
+    final int nh = box.height - 2 * MARGIN;
     final Rectangle2D bbox = tree.getBoundingBox();
     zoom = 1.0;
     // does repaint
@@ -253,8 +256,8 @@ public final class ParseTreeViewer extends JPanel {
    * @param factor The zoom factor.
    */
   public void zoom(final double factor) {
-    final Dimension dim = getTreeViewSize();
-    zoomTo(dim.width / 2.0, dim.height / 2.0, factor);
+    final Rectangle box = getTreeViewSize();
+    zoomTo(box.width / 2.0, box.height / 2.0, factor);
   }
 
   /**
@@ -283,11 +286,10 @@ public final class ParseTreeViewer extends JPanel {
   public void paintSyntaxTree(final Graphics2D gfx) {
     gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
         RenderingHints.VALUE_ANTIALIAS_ON);
-    final Dimension dim = getTreeViewSize();
+    final Rectangle box = getTreeViewSize();
     gfx.setColor(Color.WHITE);
-    // drawn rectangle is 1 smaller in every direction
-    gfx.fillRect(0, 0, dim.width + 1, dim.height + 1);
-    if(dim.width > 2 * MARGIN && dim.height > 2 * MARGIN) {
+    gfx.fill(box);
+    if(box.width > 2 * MARGIN && box.height > 2 * MARGIN) {
       final Displayer d = getTree();
       if(d != null) {
         final Graphics2D g2 = (Graphics2D) gfx.create();
@@ -304,8 +306,8 @@ public final class ParseTreeViewer extends JPanel {
    * 
    * @return The size of the syntax tree view component i.e. the size of the drawing area.
    */
-  public Dimension getTreeViewSize() {
-    return display.getSize();
+  public Rectangle getTreeViewSize() {
+    return new Rectangle(display.getSize());
   }
 
 }
