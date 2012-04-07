@@ -9,9 +9,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 
 import javax.swing.Action;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
 
 import de.woerteler.charty.ChartParser;
 import de.woerteler.charty.DisplayMethod;
@@ -132,12 +130,8 @@ public final class Controller implements ParserInfoListener {
   private void saveGrammar(final File file) {
     File f = file;
     if(f == null) {
-      final JFileChooser saveDialog = new JFileChooser(new File(
-          System.getProperty("user.home")));
-      saveDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-      final int result = saveDialog.showSaveDialog(gui);
-      f = saveDialog.getSelectedFile();
-      if(result != JFileChooser.APPROVE_OPTION || f == null) return;
+      f = gui.saveFileDialog(new File(System.getProperty("user.home")));
+      if(f == null) return;
     }
 
     final String content = model.getGrammar();
@@ -157,16 +151,9 @@ public final class Controller implements ParserInfoListener {
   /** Opens a new grammar definition. */
   public void openGrammar() {
     if(closeGrammar()) return;
-    File dir = null;
     final File curr = model.getOpenedFile();
-    if(curr != null) {
-      dir = curr.getParentFile();
-    } else {
-      final File home = new File(System.getProperty("user.home"));
-      if(home.exists()) {
-        dir = home;
-      }
-    }
+    final File dir = (curr != null) ? curr.getParentFile() : new File(
+        System.getProperty("user.home"));
     final File f = gui.chooseFile(dir);
     if(f == null) return;
 
@@ -284,23 +271,8 @@ public final class Controller implements ParserInfoListener {
    * Saves the current view on the syntax tree.
    */
   public void saveView() {
-    final JFileChooser choose = new JFileChooser();
-    choose.addChoosableFileFilter(new FileFilter() {
-
-      @Override
-      public String getDescription() {
-        return "Image (*.png, *.jpg, *.jpeg)";
-      }
-
-      @Override
-      public boolean accept(final File f) {
-        final String name = f.getName();
-        return !f.isFile() || name.endsWith(".png") || name.endsWith(".jpg")
-            || name.endsWith(".jpeg");
-      }
-    });
-    if(choose.showSaveDialog(gui) != JFileChooser.APPROVE_OPTION) return;
-    final File file = choose.getSelectedFile();
+    final File file = gui.saveImageDialog(new File(System.getProperty("user.home")));
+    if(file == null) return;
     File dest;
     if(!file.getName().contains(".")) {
       dest = new File(file.getParentFile(), file.getName() + ".png");

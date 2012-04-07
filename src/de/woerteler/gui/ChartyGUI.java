@@ -28,6 +28,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
 
 import jkit.io.convert.ArrayConverterAdapter;
 import jkit.io.convert.Converter;
@@ -296,20 +297,6 @@ public final class ChartyGUI extends JFrame {
   }
 
   /**
-   * Shows a file chooser dialog to the user.
-   * 
-   * @param dir the starting directory
-   * @return the chosen file or {@code null}, if nothing was chosen
-   */
-  public File chooseFile(final File dir) {
-    final JFileChooser choose = new JFileChooser(dir);
-    choose.setMultiSelectionEnabled(false);
-    choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    return choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION
-        ? choose.getSelectedFile() : null;
-  }
-
-  /**
    * Displays the given parse tree.
    * 
    * @param tree parse tree
@@ -395,6 +382,61 @@ public final class ChartyGUI extends JFrame {
         showError("Error writing the ini file!");
       }
     }
+  }
+
+  /**
+   * Shows a file chooser dialog to the user.
+   * 
+   * @param dir the starting directory
+   * @return the chosen file or {@code null}, if nothing was chosen
+   */
+  public File chooseFile(final File dir) {
+    final JFileChooser choose = new JFileChooser(dir);
+    choose.setMultiSelectionEnabled(false);
+    choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    return choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION
+        ? choose.getSelectedFile() : null;
+  }
+
+  /**
+   * Shows a file save dialog to the user.
+   * 
+   * @param dir the starting directory
+   * @return the chosen file or {@code null}, if nothing was chosen
+   */
+  public File saveFileDialog(final File dir) {
+    final JFileChooser saveDialog = new JFileChooser(dir);
+    saveDialog.setMultiSelectionEnabled(false);
+    saveDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    return (saveDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION)
+        ? saveDialog.getSelectedFile() : null;
+  }
+
+  /**
+   * Shows a image save dialog to the user.
+   * 
+   * @param dir the starting directory
+   * @return the chosen file or {@code null}, if nothing was chosen
+   */
+  public File saveImageDialog(final File dir) {
+    final JFileChooser choose = new JFileChooser(dir);
+    choose.addChoosableFileFilter(new FileFilter() {
+
+      @Override
+      public String getDescription() {
+        return "Image (*.png, *.jpg, *.jpeg)";
+      }
+
+      @Override
+      public boolean accept(final File f) {
+        final String name = f.getName();
+        return !f.isFile() || name.endsWith(".png") || name.endsWith(".jpg")
+            || name.endsWith(".jpeg");
+      }
+
+    });
+    return (choose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION)
+        ? choose.getSelectedFile() : null;
   }
 
 }

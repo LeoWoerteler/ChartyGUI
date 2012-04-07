@@ -168,7 +168,7 @@ public final class DataModel {
    * @param f file
    * @param contents contents of the file
    */
-  public synchronized void setOpenedFile(final File f, final String contents) {
+  protected synchronized void setOpenedFile(final File f, final String contents) {
     opened = f;
     try {
       grammar.remove(0, grammar.getLength());
@@ -186,6 +186,18 @@ public final class DataModel {
   }
 
   /**
+   * Sets the currently opened file.
+   * 
+   * @param f file
+   * @param content contents of the file
+   * @throws IOException If the file could not be read.
+   */
+  protected void setOpenedFile(final File f, final InputStream content)
+      throws IOException {
+    setOpenedFile(f, IOUtils.readString(content));
+  }
+
+  /**
    * The resource name of the default grammar.
    */
   public static final String DEFAULT_GRAMMAR = "PSG1.txt";
@@ -198,8 +210,7 @@ public final class DataModel {
    * @throws IOException If the default grammar can not be found.
    */
   public void setDefaultGrammar() throws IOException {
-    final InputStream psg = IOUtils.getResource(DEFAULT_GRAMMAR);
-    setOpenedFile(null, IOUtils.readString(psg));
+    setOpenedFile(null, IOUtils.getResource(DEFAULT_GRAMMAR));
   }
 
   /**
@@ -209,8 +220,7 @@ public final class DataModel {
    * @throws IOException If the file could not be read.
    */
   public void setOpenedFile(final File file) throws IOException {
-    final BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
-    setOpenedFile(file, IOUtils.readString(is));
+    setOpenedFile(file, new BufferedInputStream(new FileInputStream(file)));
   }
 
   /**
