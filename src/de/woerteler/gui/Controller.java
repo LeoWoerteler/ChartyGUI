@@ -1,15 +1,16 @@
 package de.woerteler.gui;
 
 import static de.woerteler.gui.ChartyGUI.*;
+import static de.woerteler.gui.GUIActions.ActionID.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.nio.charset.Charset;
 
 import javax.swing.Action;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import de.woerteler.charty.ChartParser;
@@ -24,7 +25,6 @@ import de.woerteler.charty.Tokenizer;
 import de.woerteler.gui.GUIActions.ActionID;
 import de.woerteler.tree.DirectDisplay;
 import de.woerteler.tree.render.DefaultRenderer;
-import de.woerteler.util.IOUtils;
 
 /**
  * The controller class. The controller should be used to alter the gui
@@ -33,6 +33,10 @@ import de.woerteler.util.IOUtils;
  * @author Leo Woerteler
  */
 public final class Controller implements ParserInfoListener {
+
+  /** The info text for saving editor changes when closing the window. */
+  private static final String SAVE_INFO = "<html>The grammar has unsaved changes." +
+      "<br>Would you like to save it now?";
 
   /** The holder of all actions. */
   private final GUIActions actions;
@@ -90,6 +94,24 @@ public final class Controller implements ParserInfoListener {
     return method;
   }
 
+  /**
+   * Closes the current grammar. Asks to save the file if the grammar has
+   * unsaved changes. The close operation can be aborted.
+   * 
+   * @return Whether to abort the close operation.
+   */
+  public boolean closeGrammar() {
+    if(!model.grammarHasChanged()) return false;
+    final int result = JOptionPane.showConfirmDialog(gui, SAVE_INFO,
+        "Unsaved changes...", JOptionPane.YES_NO_CANCEL_OPTION);
+    if(result == JOptionPane.CANCEL_OPTION) return true;
+    if(result == JOptionPane.YES_OPTION) {
+      // since it is our own action we are safe to pass no action event
+      getActionFor(GRAMMAR_SAVE).actionPerformed(null);
+    }
+    return false;
+  }
+
   /** Saves the currently open grammar definition. */
   public void saveGrammar() {
     saveGrammar(model.getOpenedFile());
@@ -134,6 +156,7 @@ public final class Controller implements ParserInfoListener {
 
   /** Opens a new grammar definition. */
   public void openGrammar() {
+    if(closeGrammar()) return;
     File dir = null;
     final File curr = model.getOpenedFile();
     if(curr != null) {
@@ -147,15 +170,25 @@ public final class Controller implements ParserInfoListener {
     final File f = gui.chooseFile(dir);
     if(f == null) return;
 
-    byte[] contents;
     try {
-      contents = IOUtils.readFile(f);
+      model.setOpenedFile(f);
     } catch(final IOException e) {
       gui.showError("Can't open file: " + e.getMessage());
       return;
     }
+  }
 
-    model.setOpenedFile(f, new String(contents, Charset.forName("UTF-8")));
+  /**
+   * Opens the default grammar not associated with a file. The default grammar
+   * is a small example grammar.
+   */
+  public void newGrammar() {
+    if(closeGrammar()) return;
+    try {
+      model.setDefaultGrammar();
+    } catch(final IOException e) {
+      gui.showError("Can't open default grammar: " + e.getMessage());
+    }
   }
 
   /**

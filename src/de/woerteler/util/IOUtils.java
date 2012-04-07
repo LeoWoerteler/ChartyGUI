@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.charset.Charset;
 
 /**
  * Utility methods for input and output.
@@ -68,6 +69,17 @@ public final class IOUtils {
     }
     in.close();
     return baos.toByteArray();
+  }
+
+  /**
+   * Reads an input stream as UTF-8 String.
+   * 
+   * @param in The input stream.
+   * @return The input stream interpreted as UTF-8 String.
+   * @throws IOException If an exception occurs during reading.
+   */
+  public static String readString(final InputStream in) throws IOException {
+    return new String(readFully(in), Charset.forName("UTF-8"));
   }
 
   /**

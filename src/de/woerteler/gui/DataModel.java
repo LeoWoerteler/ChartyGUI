@@ -2,7 +2,11 @@ package de.woerteler.gui;
 
 import static de.woerteler.gui.ChartyGUI.*;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import javax.swing.event.DocumentEvent;
@@ -14,6 +18,7 @@ import javax.swing.text.Document;
 
 import de.woerteler.charty.Displayer;
 import de.woerteler.charty.ParseTree;
+import de.woerteler.util.IOUtils;
 
 /**
  * The GUI application's data model.
@@ -181,12 +186,56 @@ public final class DataModel {
   }
 
   /**
+   * The resource name of the default grammar.
+   */
+  public static final String DEFAULT_GRAMMAR = "PSG1.txt";
+
+  /**
+   * Sets the currently opened grammar to the default grammar, i.e. a new
+   * grammar not associated with a file. The default grammar is a small example
+   * grammar.
+   * 
+   * @throws IOException If the default grammar can not be found.
+   */
+  public void setDefaultGrammar() throws IOException {
+    final InputStream psg = IOUtils.getResource(DEFAULT_GRAMMAR);
+    setOpenedFile(null, IOUtils.readString(psg));
+  }
+
+  /**
+   * Sets the currently opened file.
+   * 
+   * @param file The file.
+   * @throws IOException If the file could not be read.
+   */
+  public void setOpenedFile(final File file) throws IOException {
+    final BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
+    setOpenedFile(file, IOUtils.readString(is));
+  }
+
+  /**
+   * Whether the grammar has been changed in the editor since the last save.
+   */
+  private boolean grammarHasChanged;
+
+  /**
    * Refreshes the main window title.
    * 
    * @param changed Whether the grammar editor has changes.
    */
   public void refreshTitle(final boolean changed) {
+    grammarHasChanged = changed;
     gui.setTitle(opened != null ? opened.getPath() : null, changed);
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return Whether the grammar has been changed in the editor since the last
+   *         save.
+   */
+  public boolean grammarHasChanged() {
+    return grammarHasChanged;
   }
 
   /**

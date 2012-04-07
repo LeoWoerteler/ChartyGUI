@@ -9,17 +9,13 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
-import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -55,10 +51,6 @@ public final class ChartyGUI extends JFrame {
 
   /** The name of this application. */
   private static final String NAME = "ChartyGUI 0.1 α 1";
-
-  /** The info text for saving editor changes when closing the window. */
-  private static final String SAVE_INFO = "<html>The grammar has unsaved changes." +
-      "<br>Would you like to save it now?";
 
   /** Serial version UID. */
   private static final long serialVersionUID = 6440369013993516988L;
@@ -112,8 +104,8 @@ public final class ChartyGUI extends JFrame {
   /** Grammar editor. */
   private final GrammarEditor editor;
 
-  /** The save action. It is kept in the gui for saving when closing the window. */
-  private final Action saveAction;
+  /** The associated controller. */
+  private final Controller ctrl;
 
   /** Whether the window was in the center of the screen at start up. */
   private final boolean wasInCenter;
@@ -137,16 +129,16 @@ public final class ChartyGUI extends JFrame {
     setIconImages(icons);
 
     final DataModel model = new DataModel(this);
-    final Controller ctrl = new Controller(this, model);
+    ctrl = new Controller(this, model);
 
     // menu bar
     final JMenuBar menuBar = new JMenuBar();
     setJMenuBar(menuBar);
     final JMenu fileMenu = new JMenu("File");
     menuBar.add(fileMenu);
+    fileMenu.add(ctrl.getActionFor(GRAMMAR_NEW));
     fileMenu.add(ctrl.getActionFor(GRAMMAR_OPEN));
-    saveAction = ctrl.getActionFor(GRAMMAR_SAVE);
-    fileMenu.add(saveAction);
+    fileMenu.add(ctrl.getActionFor(GRAMMAR_SAVE));
     fileMenu.add(ctrl.getActionFor(GRAMMAR_SAVE_AS));
     fileMenu.addSeparator();
     fileMenu.add(ctrl.getActionFor(EXIT));
@@ -186,12 +178,16 @@ public final class ChartyGUI extends JFrame {
 
     try {
       final File grammar = INI.getObject("last", "grammar", Converter.FILE_CONVERTER, "");
-      final InputStream psg = (grammar == null || !grammar.exists())
-          ? IOUtils.getResource("PSG1.txt")
-              : new BufferedInputStream(new FileInputStream(grammar));
-          final byte[] contents = IOUtils.readFully(psg);
-          model.setOpenedFile(grammar.exists() ? grammar : null,
-              new String(contents, Charset.forName("UTF-8")));
+      if(grammar == null || !grammar.exists()) {
+        model.setDefaultGrammar();
+      } else {
+        try {
+          model.setOpenedFile(grammar);
+        } catch(final IOException e) {
+          // fall-back for unreadable files
+          model.setDefaultGrammar();
+        }
+      }
     } catch(final IOException e) {
       e.printStackTrace();
     }
@@ -230,18 +226,10 @@ public final class ChartyGUI extends JFrame {
 
   @Override
   public void dispose() {
-    if(grammarHasChanged) {
-      final int result = JOptionPane.showConfirmDialog(this, SAVE_INFO,
-          "Unsaved changes...", JOptionPane.YES_NO_CANCEL_OPTION);
-      if(result == JOptionPane.CANCEL_OPTION) {
-        // abort dispose
-        setVisible(true);
-        return;
-      }
-      if(result == JOptionPane.YES_OPTION) {
-        // since it is our own action we are safe to pass no action event
-        saveAction.actionPerformed(null);
-      }
+    if(ctrl.closeGrammar()) {
+      // abort dispose
+      setVisible(true);
+      return;
     }
     refreshIniValues();
     writeIniOnChange();
@@ -282,24 +270,13 @@ public final class ChartyGUI extends JFrame {
   }
 
   /**
-   * Whether the grammar has been changed in the editor since the last save.
-   */
-  private boolean grammarHasChanged;
-
-  /**
    * Sets the title of the window.
    * 
    * @param title The title after the program name.
    * @param changed Whether the editor has changes.
    */
   public void setTitle(final String title, final boolean changed) {
-    grammarHasChanged = changed;
-    super.setTitle(NAME + (title == null ? "" : ": " + title) + (changed ? "*" : ""));
-  }
-
-  @Override
-  public void setTitle(final String title) {
-    setTitle(title, false);
+    setTitle(NAME + (title == null ? "" : ": " + title) + (changed ? "*" : ""));
   }
 
   /**

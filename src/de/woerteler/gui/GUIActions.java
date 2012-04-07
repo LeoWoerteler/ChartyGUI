@@ -27,6 +27,9 @@ public class GUIActions {
    * @author Joschi <josua.krause@googlemail.com>
    */
   public static enum ActionID {
+    /** Opens a new grammar. */
+    GRAMMAR_NEW,
+
     /** Opens a grammar file. */
     GRAMMAR_OPEN,
 
@@ -148,6 +151,16 @@ public class GUIActions {
       @Override
       public void actionPerformed(final ActionEvent e) {
         ctrl.openGrammar();
+      }
+
+    });
+    actionMap.put(ActionID.GRAMMAR_NEW, new AbstractAction("New grammar") {
+
+      private static final long serialVersionUID = -2773817874878903577L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.newGrammar();
       }
 
     });
