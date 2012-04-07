@@ -128,11 +128,8 @@ public final class Controller implements ParserInfoListener {
    *          save file dialog.
    */
   private void saveGrammar(final File file) {
-    File f = file;
-    if(f == null) {
-      f = gui.saveFileDialog(new File(System.getProperty("user.home")));
-      if(f == null) return;
-    }
+    final File f = (file == null) ? gui.saveGrammarDialog(model.getOpenedFile()) : file;
+    if(f == null) return;
 
     final String content = model.getGrammar();
     try {
@@ -151,10 +148,7 @@ public final class Controller implements ParserInfoListener {
   /** Opens a new grammar definition. */
   public void openGrammar() {
     if(closeGrammar()) return;
-    final File curr = model.getOpenedFile();
-    final File dir = (curr != null) ? curr.getParentFile() : new File(
-        System.getProperty("user.home"));
-    final File f = gui.chooseFile(dir);
+    final File f = gui.chooseGrammarDialog(model.getOpenedFile());
     if(f == null) return;
 
     try {
@@ -271,7 +265,8 @@ public final class Controller implements ParserInfoListener {
    * Saves the current view on the syntax tree.
    */
   public void saveView() {
-    final File file = gui.saveImageDialog(new File(System.getProperty("user.home")));
+    if(!gui.canSaveView()) return;
+    final File file = gui.saveViewDialog();
     if(file == null) return;
     File dest;
     if(!file.getName().contains(".")) {

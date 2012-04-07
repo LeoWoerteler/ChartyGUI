@@ -28,7 +28,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import jkit.io.convert.ArrayConverterAdapter;
 import jkit.io.convert.Converter;
@@ -313,6 +313,19 @@ public final class ChartyGUI extends JFrame {
   }
 
   /**
+   * Whether there is a view that can be saved.
+   * 
+   * @return Whether a view can be saved.
+   */
+  public boolean canSaveView() {
+    if(!treeViewer.hasTree()) {
+      showError("There is no view to save!");
+      return false;
+    }
+    return true;
+  }
+
+  /**
    * Saves the current view of the syntax tree.
    * 
    * @param file The destination.
@@ -385,58 +398,70 @@ public final class ChartyGUI extends JFrame {
   }
 
   /**
+   * The String of the home directory.
+   */
+  public static final String HOME_STR = System.getProperty("user.home");
+
+  /**
    * Shows a file chooser dialog to the user.
    * 
-   * @param dir the starting directory
+   * @param cur the current opened grammar or <code>null</code>
    * @return the chosen file or {@code null}, if nothing was chosen
    */
-  public File chooseFile(final File dir) {
+  public File chooseGrammarDialog(final File cur) {
+    File dir = cur;
+    if(dir == null || !dir.exists()) {
+      dir = INI.getObject("last", "grammarDir", Converter.FILE_CONVERTER, HOME_STR);
+    }
     final JFileChooser choose = new JFileChooser(dir);
     choose.setMultiSelectionEnabled(false);
     choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    return choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION
+    final File res = choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION
         ? choose.getSelectedFile() : null;
+        if(res != null) {
+          INI.setObject("last", "grammarDir", res.getParentFile());
+        }
+        return res;
   }
 
   /**
-   * Shows a file save dialog to the user.
+   * Shows a grammar save dialog to the user.
    * 
-   * @param dir the starting directory
+   * @param cur the currently opened grammar or <code>null</code>
    * @return the chosen file or {@code null}, if nothing was chosen
    */
-  public File saveFileDialog(final File dir) {
+  public File saveGrammarDialog(final File cur) {
+    File dir = cur;
+    if(dir == null || !dir.exists()) {
+      dir = INI.getObject("last", "grammarDir", Converter.FILE_CONVERTER, HOME_STR);
+    }
     final JFileChooser saveDialog = new JFileChooser(dir);
     saveDialog.setMultiSelectionEnabled(false);
     saveDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    return (saveDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION)
+    final File res = (saveDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION)
         ? saveDialog.getSelectedFile() : null;
+        if(res != null) {
+          INI.setObject("last", "grammarDir", res.getParentFile());
+        }
+        return res;
   }
 
   /**
-   * Shows a image save dialog to the user.
+   * Shows a view save dialog to the user.
    * 
-   * @param dir the starting directory
    * @return the chosen file or {@code null}, if nothing was chosen
    */
-  public File saveImageDialog(final File dir) {
-    final JFileChooser choose = new JFileChooser(dir);
-    choose.addChoosableFileFilter(new FileFilter() {
-
-      @Override
-      public String getDescription() {
-        return "Image (*.png, *.jpg, *.jpeg)";
-      }
-
-      @Override
-      public boolean accept(final File f) {
-        final String name = f.getName();
-        return !f.isFile() || name.endsWith(".png") || name.endsWith(".jpg")
-            || name.endsWith(".jpeg");
-      }
-
-    });
-    return (choose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION)
+  public File saveViewDialog() {
+    final JFileChooser choose = new JFileChooser(INI.getObject("last", "viewDir",
+        Converter.FILE_CONVERTER, HOME_STR));
+    choose.setFileFilter(new FileNameExtensionFilter("Image (*.png, *.jpg, *.jpeg)",
+        "jpg", "jpeg", "png"));
+    final File res = (choose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION)
         ? choose.getSelectedFile() : null;
+        if(res != null) {
+          INI.setObject("last", "viewDir", res.getParentFile());
+        }
+        return res;
   }
 
 }

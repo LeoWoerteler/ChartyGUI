@@ -201,12 +201,12 @@ public final class ParseTreeViewer extends JPanel {
   }
 
   /**
-   * Gets the currently shown tree.
+   * Whether a tree is currently shown.
    * 
-   * @return tree
+   * @return Whether a tree is currently shown.
    */
-  public synchronized Displayer getTree() {
-    return tree;
+  public boolean hasTree() {
+    return tree != null;
   }
 
   /**
@@ -290,7 +290,7 @@ public final class ParseTreeViewer extends JPanel {
     gfx.setColor(Color.WHITE);
     gfx.fill(box);
     if(box.width > 2 * MARGIN && box.height > 2 * MARGIN) {
-      final Displayer d = getTree();
+      final Displayer d = tree;
       if(d != null) {
         final Graphics2D g2 = (Graphics2D) gfx.create();
         g2.translate(offX, offY);
