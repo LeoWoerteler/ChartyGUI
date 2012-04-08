@@ -339,7 +339,18 @@ public final class IniReader {
    *             When the area or the name is incorrect.
    */
   public void setObject(final String area, final String name, final Object obj) {
-    set(area, name, obj.toString());
+    set(area, name, obj != null ? obj.toString() : NULL);
+  }
+
+  /**
+   * Sets a field in the INI file.
+   * 
+   * @param area The area name. The name in [box brackets].
+   * @param name The actual name of the value.
+   * @param obj The instance whose class is stored in the field.
+   */
+  public void setInstance(final String area, final String name, final Object obj) {
+    set(area, name, obj != null ? obj.getClass().getName() : NULL);
   }
 
   /**
@@ -872,10 +883,11 @@ public final class IniReader {
    *         <li>the object can not be cast to the type <code>&lt;T&gt;</code>
    *         </ul>
    */
+  @SuppressWarnings("unchecked")
   public <T> T getInstance(final String area, final String name,
-      final Class<T> superType, final Class<T> defaultClass) {
+      final Class<T> superType, final Class<? extends T> defaultClass) {
     return getInstance0(getObject(area, name, new ClassConverter<T>(
-        superType), defaultClass));
+        superType), (Class<T>) defaultClass));
   }
 
   /**

@@ -232,6 +232,7 @@ public final class ChartyGUI extends JFrame {
       setVisible(true);
       return;
     }
+    ctrl.refreshIniValues();
     refreshIniValues();
     writeIniOnChange();
     super.dispose();

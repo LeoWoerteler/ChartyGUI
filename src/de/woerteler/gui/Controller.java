@@ -53,13 +53,15 @@ public final class Controller implements ParserInfoListener {
   private final Object parseLock = new Object();
 
   /** The syntax tree render method. */
-  private NodeRenderer renderer = new DefaultRenderer();
+  private NodeRenderer renderer = INI.getInstance("last", "renderer", NodeRenderer.class,
+      DefaultRenderer.class);
 
   /** The syntax tree positioning strategy. */
-  private TreeStrategy strategy = new BottomUpStrategy();
+  private TreeStrategy strategy = INI.getInstance("last", "strategy", TreeStrategy.class,
+      BottomUpStrategy.class);
 
   /** Whether to use the LaTeX display method. */
-  private boolean latexMethod;
+  private boolean latexMethod = INI.getBoolean("last", "latex");
 
   /** The method to display the syntax tree. */
   private DisplayMethod method;
@@ -345,6 +347,15 @@ public final class Controller implements ParserInfoListener {
    */
   public void exit() {
     gui.dispose();
+  }
+
+  /**
+   * Refreshes the values in the ini file.
+   */
+  public void refreshIniValues() {
+    INI.setInstance("last", "renderer", renderer);
+    INI.setInstance("last", "strategy", strategy);
+    INI.setBoolean("last", "latex", latexMethod);
   }
 
 }
