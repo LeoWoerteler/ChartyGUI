@@ -10,8 +10,10 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import de.woerteler.tree.render.DefaultRenderer;
+import de.woerteler.tree.render.NodeRenderer;
 import de.woerteler.tree.render.SimpleRenderer;
 import de.woerteler.tree.strategy.BottomUpStrategy;
+import de.woerteler.tree.strategy.TreeStrategy;
 
 /**
  * A class containing all GUI interactions.
@@ -130,23 +132,29 @@ public class GUIActions {
       }
 
     });
-    actionMap.put(ActionID.CUSTOM_RENDERER, new AbstractAction("Custom Renderer") {
+    final NodeRenderer nr = Controller.CUSTOM_RENDERER;
+    String crName = nr != null ? nr.getClass().getName() : "-";
+    actionMap.put(ActionID.CUSTOM_RENDERER, new AbstractAction("Custom Renderer ("
+        + crName + ")") {
 
       private static final long serialVersionUID = -5448188090530488777L;
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        // FIXME:
+        ctrl.setRenderer(nr);
       }
 
     });
-    actionMap.put(ActionID.CUSTOM_STRATEGY, new AbstractAction("Custom Strategy") {
+    final TreeStrategy ts = Controller.CUSTOM_STRATEGY;
+    String csName = ts != null ? ts.getClass().getName() : "-";
+    actionMap.put(ActionID.CUSTOM_STRATEGY, new AbstractAction("Custom Strategy ("
+        + csName + ")") {
 
       private static final long serialVersionUID = 2422472290296174048L;
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        // FIXME:
+        ctrl.setStrategy(ts);
       }
 
     });

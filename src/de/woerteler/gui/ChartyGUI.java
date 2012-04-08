@@ -161,17 +161,17 @@ public final class ChartyGUI extends JFrame {
     addMenuItem(DISPLAY_DEFAULT, DefaultRenderer.class, displayMenu, rendererGroup);
     addMenuItem(DISPLAY_BOX, SimpleRenderer.class, displayMenu, rendererGroup);
     // custom item as last
-    final NodeRenderer renderer = ctrl.getRenderer();
-    if(renderer == null || !ctrl.isRegisteredMenuItem(renderer.getClass())) {
-      addMenuItem(CUSTOM_RENDERER, renderer.getClass(), displayMenu, rendererGroup);
+    if(Controller.CUSTOM_RENDERER != null) {
+      addMenuItem(CUSTOM_RENDERER, Controller.CUSTOM_RENDERER.getClass(),
+          displayMenu, rendererGroup);
     }
     displayMenu.addSeparator();
     // strategy items
     addMenuItem(DISPLAY_BOTTOM_UP, BottomUpStrategy.class, displayMenu, strategyGroup);
     // custom item as last
-    final TreeStrategy strategy = ctrl.getStrategy();
-    if(strategy == null || !ctrl.isRegisteredMenuItem(strategy.getClass())) {
-      addMenuItem(CUSTOM_STRATEGY, strategy.getClass(), displayMenu, strategyGroup);
+    if(Controller.CUSTOM_STRATEGY != null) {
+      addMenuItem(CUSTOM_STRATEGY, Controller.CUSTOM_STRATEGY.getClass(),
+          displayMenu, strategyGroup);
     }
     displayMenu.addSeparator();
     // the latex item and rest

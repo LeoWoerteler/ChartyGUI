@@ -39,6 +39,18 @@ import de.woerteler.util.IOUtils;
  */
 public final class Controller implements ParserInfoListener {
 
+  /**
+   * A custom renderer as defined in the ini file.
+   */
+  public static final NodeRenderer CUSTOM_RENDERER = INI.getInstance("custom",
+      "renderer", NodeRenderer.class, "");
+
+  /**
+   * A custom strategy as defined in the ini file.
+   */
+  public static final TreeStrategy CUSTOM_STRATEGY = INI.getInstance("custom",
+      "strategy", TreeStrategy.class, "");
+
   /** The info text for saving editor changes when closing the window. */
   private static final String SAVE_INFO = "<html>The grammar has unsaved changes." +
       "<br>Would you like to save it now?";
@@ -160,35 +172,6 @@ public final class Controller implements ParserInfoListener {
     final String name = r.getName();
     displayMenu.put(name, item);
     checkDisplayMenu();
-  }
-
-  /**
-   * Getter.
-   * 
-   * @return The current renderer.
-   */
-  public NodeRenderer getRenderer() {
-    return renderer;
-  }
-
-  /**
-   * Getter.
-   * 
-   * @return The current strategy.
-   */
-  public TreeStrategy getStrategy() {
-    return strategy;
-  }
-
-  /**
-   * Checks if a menu item is already registered.
-   * 
-   * @param r The associated class.
-   * @return <code>true</code> if the item is already registered.
-   */
-  public boolean isRegisteredMenuItem(final Class<?> r) {
-    final String name = r.getName();
-    return displayMenu.containsKey(name);
   }
 
   /**
