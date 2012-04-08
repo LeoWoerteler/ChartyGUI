@@ -5,7 +5,6 @@ import static de.woerteler.gui.GUIActions.ActionID.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringReader;
 
 import javax.swing.Action;
@@ -23,6 +22,7 @@ import de.woerteler.charty.Tokenizer;
 import de.woerteler.gui.GUIActions.ActionID;
 import de.woerteler.tree.DirectDisplay;
 import de.woerteler.tree.render.DefaultRenderer;
+import de.woerteler.util.IOUtils;
 
 /**
  * The controller class. The controller should be used to alter the gui
@@ -133,10 +133,7 @@ public final class Controller implements ParserInfoListener {
 
     final String content = model.getGrammar();
     try {
-      final PrintWriter pw = new PrintWriter(f, "UTF-8");
-      pw.append(content);
-      pw.flush();
-      pw.close();
+      IOUtils.writeString(f, content);
     } catch(final IOException e) {
       gui.showError("Error writing grammar: " + e.getMessage());
       return;

@@ -5,10 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 
 /**
@@ -17,6 +19,9 @@ import java.nio.charset.Charset;
  * @author Leo Woerteler
  */
 public final class IOUtils {
+
+  /** The UTF-8 charset. */
+  public static final Charset UTF8 = Charset.forName("UTF-8");
 
   /** Buffer size. */
   private static final int BUF_SIZ = 1024;
@@ -27,23 +32,14 @@ public final class IOUtils {
   }
 
   /**
-   * Reads the contents of a file from disk.
-   *
-   * @param f
-   *            file to read
-   * @return contents
-   * @throws IOException
-   *             I/O exception
+   * Reads a file until EOF is reached. the stream is closed afterwards.
+   * 
+   * @param in the file
+   * @return read bytes
+   * @throws IOException I/O exception
    */
-  public static byte[] readFile(final File f) throws IOException {
-    final RandomAccessFile raf = new RandomAccessFile(f, "r");
-    final byte[] buf = new byte[(int) raf.length()];
-    try {
-      raf.readFully(buf);
-    } finally {
-      raf.close();
-    }
-    return buf;
+  public static byte[] readFully(final File in) throws IOException {
+    return readFully(new FileInputStream(in));
   }
 
   /**
@@ -79,7 +75,34 @@ public final class IOUtils {
    * @throws IOException If an exception occurs during reading.
    */
   public static String readString(final InputStream in) throws IOException {
-    return new String(readFully(in), Charset.forName("UTF-8"));
+    return new String(readFully(in), UTF8);
+  }
+
+  /**
+   * Writes a string to the output stream. The output stream is flushed and
+   * closed afterwards.
+   * 
+   * @param out The output stream.
+   * @param str The string to write.
+   * @throws IOException I/O Exception
+   */
+  public static void writeString(final OutputStream out, final String str)
+      throws IOException {
+    final Writer writer = new OutputStreamWriter(out, UTF8);
+    writer.append(str);
+    writer.flush();
+    writer.close();
+  }
+
+  /**
+   * Writes a string to a file.
+   * 
+   * @param file The file.
+   * @param str The string to write.
+   * @throws IOException I/O Exception
+   */
+  public static void writeString(final File file, final String str) throws IOException {
+    writeString(new FileOutputStream(file), str);
   }
 
   /**
