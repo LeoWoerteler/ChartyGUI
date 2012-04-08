@@ -6,7 +6,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import de.woerteler.tree.Node;
+import de.woerteler.tree.DisplayableNode;
 
 /**
  * A simple colorful node renderer.
@@ -36,10 +36,10 @@ public class SimpleRenderer implements NodeRenderer {
   public static final Color TEXT = Color.BLACK;
 
   @Override
-  public void render(final Graphics2D g, final Node root) {
+  public void render(final Graphics2D g, final DisplayableNode root) {
     final Point2D center = root.getCenter();
     g.setColor(LINES);
-    for(final Node c : root.getChilds()) {
+    for(final DisplayableNode c : root.getChilds()) {
       final Line2D line = new Line2D.Double(center, c.getCenter());
       g.draw(line);
     }
@@ -49,9 +49,9 @@ public class SimpleRenderer implements NodeRenderer {
     g.setColor(BORDER);
     g.draw(rect);
     g.setColor(TEXT);
-    g.drawString(root.getLabel(), (float) root.getTextLeft(),
-        (float) root.getTextBottom());
-    for(final Node c : root.getChilds()) {
+    g.drawString(root.getLabel(), root.getTextLeft(),
+        root.getTextBottom());
+    for(final DisplayableNode c : root.getChilds()) {
       render(g, c);
     }
   }

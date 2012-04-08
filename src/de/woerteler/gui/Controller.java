@@ -22,6 +22,7 @@ import de.woerteler.charty.Tokenizer;
 import de.woerteler.gui.GUIActions.ActionID;
 import de.woerteler.tree.DirectDisplay;
 import de.woerteler.tree.render.DefaultRenderer;
+import de.woerteler.tree.strategy.BottomUpStrategy;
 import de.woerteler.util.IOUtils;
 
 /**
@@ -49,7 +50,8 @@ public final class Controller implements ParserInfoListener {
   private final Object parseLock = new Object();
 
   /** The method to display the syntax tree. */
-  private DisplayMethod method = new DirectDisplay(new DefaultRenderer());
+  private DisplayMethod method = new DirectDisplay(new DefaultRenderer(),
+      new BottomUpStrategy());
 
   /**
    * Constructor taking the application's {@link DataModel model}.

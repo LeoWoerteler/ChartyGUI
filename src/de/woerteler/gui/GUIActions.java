@@ -13,6 +13,7 @@ import de.woerteler.latex.LatexDisplay;
 import de.woerteler.tree.DirectDisplay;
 import de.woerteler.tree.render.DefaultRenderer;
 import de.woerteler.tree.render.SimpleRenderer;
+import de.woerteler.tree.strategy.BottomUpStrategy;
 
 /**
  * A class containing all GUI interactions.
@@ -88,7 +89,7 @@ public class GUIActions {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        ctrl.setMethod(new DirectDisplay(new DefaultRenderer()));
+        ctrl.setMethod(new DirectDisplay(new DefaultRenderer(), new BottomUpStrategy()));
       }
 
     });
@@ -98,7 +99,7 @@ public class GUIActions {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        ctrl.setMethod(new DirectDisplay(new SimpleRenderer()));
+        ctrl.setMethod(new DirectDisplay(new SimpleRenderer(), new BottomUpStrategy()));
       }
 
     });
