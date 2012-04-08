@@ -11,6 +11,7 @@ import javax.swing.Action;
 
 import de.woerteler.tree.render.DefaultRenderer;
 import de.woerteler.tree.render.SimpleRenderer;
+import de.woerteler.tree.strategy.BottomUpStrategy;
 
 /**
  * A class containing all GUI interactions.
@@ -43,8 +44,17 @@ public class GUIActions {
     /** Sets to a boxed syntax tree display method. */
     DISPLAY_BOX,
 
+    /** Sets to the bottom up syntax tree strategy. */
+    DISPLAY_BOTTOM_UP,
+
     /** Sets to the latex syntax tree display method. */
     DISPLAY_LATEX,
+
+    /** Sets to the custom renderer. */
+    CUSTOM_RENDERER,
+
+    /** Sets to the custom strategy. */
+    CUSTOM_STRATEGY,
 
     /** Saves the current view. */
     VIEW_SAVE,
@@ -100,6 +110,16 @@ public class GUIActions {
       }
 
     });
+    actionMap.put(ActionID.DISPLAY_BOTTOM_UP, new AbstractAction("Bottom-up strategy") {
+
+      private static final long serialVersionUID = -309282807664400632L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.setStrategy(new BottomUpStrategy());
+      }
+
+    });
     actionMap.put(ActionID.DISPLAY_LATEX, new AbstractAction("LaTeX Drawing") {
 
       private static final long serialVersionUID = -309282807664400632L;
@@ -107,6 +127,26 @@ public class GUIActions {
       @Override
       public void actionPerformed(final ActionEvent e) {
         ctrl.setLaTeXMethod();
+      }
+
+    });
+    actionMap.put(ActionID.CUSTOM_RENDERER, new AbstractAction("Custom Renderer") {
+
+      private static final long serialVersionUID = -5448188090530488777L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        // FIXME:
+      }
+
+    });
+    actionMap.put(ActionID.CUSTOM_STRATEGY, new AbstractAction("Custom Strategy") {
+
+      private static final long serialVersionUID = 2422472290296174048L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        // FIXME:
       }
 
     });

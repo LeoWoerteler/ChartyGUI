@@ -34,6 +34,13 @@ import jkit.io.convert.ArrayConverterAdapter;
 import jkit.io.convert.Converter;
 import jkit.io.ini.IniReader;
 import de.woerteler.charty.Displayer;
+import de.woerteler.gui.GUIActions.ActionID;
+import de.woerteler.latex.LaTeXDisplay;
+import de.woerteler.tree.render.DefaultRenderer;
+import de.woerteler.tree.render.NodeRenderer;
+import de.woerteler.tree.render.SimpleRenderer;
+import de.woerteler.tree.strategy.BottomUpStrategy;
+import de.woerteler.tree.strategy.TreeStrategy;
 import de.woerteler.util.IOUtils;
 
 /**
@@ -145,20 +152,30 @@ public final class ChartyGUI extends JFrame {
     fileMenu.add(ctrl.getActionFor(EXIT));
     final JMenu displayMenu = new JMenu("Display");
     menuBar.add(displayMenu);
-    final ButtonGroup displayGroup = new ButtonGroup();
-    final JRadioButtonMenuItem dd = new JRadioButtonMenuItem(
-        ctrl.getActionFor(DISPLAY_DEFAULT));
-    dd.setSelected(true);
-    displayGroup.add(dd);
-    displayMenu.add(dd);
-    final JRadioButtonMenuItem db = new JRadioButtonMenuItem(
-        ctrl.getActionFor(DISPLAY_BOX));
-    displayGroup.add(db);
-    displayMenu.add(db);
-    final JRadioButtonMenuItem dl = new JRadioButtonMenuItem(
-        ctrl.getActionFor(DISPLAY_LATEX));
-    displayGroup.add(dl);
-    displayMenu.add(dl);
+    final ButtonGroup rendererGroup = new ButtonGroup();
+    final ButtonGroup strategyGroup = new ButtonGroup();
+    // no selection items
+    addMenuItem(null, NodeRenderer.class, null, rendererGroup);
+    addMenuItem(null, TreeStrategy.class, null, strategyGroup);
+    // renderer items
+    addMenuItem(DISPLAY_DEFAULT, DefaultRenderer.class, displayMenu, rendererGroup);
+    addMenuItem(DISPLAY_BOX, SimpleRenderer.class, displayMenu, rendererGroup);
+    // custom item as last
+    final NodeRenderer renderer = ctrl.getRenderer();
+    if(renderer == null || !ctrl.isRegisteredMenuItem(renderer.getClass())) {
+      addMenuItem(CUSTOM_RENDERER, renderer.getClass(), displayMenu, rendererGroup);
+    }
+    displayMenu.addSeparator();
+    // strategy items
+    addMenuItem(DISPLAY_BOTTOM_UP, BottomUpStrategy.class, displayMenu, strategyGroup);
+    // custom item as last
+    final TreeStrategy strategy = ctrl.getStrategy();
+    if(strategy == null || !ctrl.isRegisteredMenuItem(strategy.getClass())) {
+      addMenuItem(CUSTOM_STRATEGY, strategy.getClass(), displayMenu, strategyGroup);
+    }
+    displayMenu.addSeparator();
+    // the latex item and rest
+    addMenuItem(DISPLAY_LATEX, LaTeXDisplay.class, displayMenu, null);
     displayMenu.addSeparator();
     displayMenu.add(ctrl.getActionFor(VIEW_SAVE));
     // Left side: edit grammar and phrase
@@ -223,6 +240,32 @@ public final class ChartyGUI extends JFrame {
     // shows unresolved / cycling threads -- safer close
     // ensures call of dispose
     setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+  }
+
+  /**
+   * Adds a maybe grouped radio button menu item and registers it in the
+   * controller.
+   * 
+   * @param id The action id or <code>null</code> if no action is needed.
+   * @param lookup The lookup class associated with this menu item.
+   * @param menu The menu to add the button to or <code>null</code> if the
+   *          button should remain hidden.
+   * @param group The group to add the button to or <code>null</code> if no
+   *          group is associated with the button.
+   */
+  private void addMenuItem(final ActionID id, final Class<?> lookup, final JMenu menu,
+      final ButtonGroup group) {
+    final JRadioButtonMenuItem item = id == null ? new JRadioButtonMenuItem()
+    : new JRadioButtonMenuItem(ctrl.getActionFor(id));
+    if(group != null) {
+      group.add(item);
+    }
+    if(menu != null) {
+      menu.add(item);
+    } else {
+      item.setVisible(false);
+    }
+    ctrl.registerDisplayMenuItem(lookup, item);
   }
 
   @Override

@@ -6,9 +6,12 @@ import static de.woerteler.gui.GUIActions.ActionID.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 
 import de.woerteler.charty.ChartParser;
 import de.woerteler.charty.DisplayMethod;
@@ -48,6 +51,9 @@ public final class Controller implements ParserInfoListener {
 
   /** The GUI. */
   private final ChartyGUI gui;
+
+  /** The renderer menu item lookup. */
+  private final Map<String, JRadioButtonMenuItem> displayMenu;
 
   /** Lock for the parse method. */
   private final Object parseLock = new Object();
@@ -89,6 +95,7 @@ public final class Controller implements ParserInfoListener {
     gui = g;
     model = mod;
     actions = new GUIActions(this);
+    displayMenu = new HashMap<String, JRadioButtonMenuItem>();
     setMethod();
   }
 
@@ -116,6 +123,7 @@ public final class Controller implements ParserInfoListener {
   private void setMethod() {
     method = createMethod(renderer, strategy, latexMethod);
     refresh();
+    checkDisplayMenu();
   }
 
   /**
@@ -139,6 +147,82 @@ public final class Controller implements ParserInfoListener {
     latexMethod = false;
     this.renderer = renderer;
     setMethod();
+  }
+
+  /**
+   * Registers a display menu item.
+   * 
+   * @param r The associated class.
+   * @param item The item.
+   */
+  public void registerDisplayMenuItem(final Class<?> r,
+      final JRadioButtonMenuItem item) {
+    final String name = r.getName();
+    displayMenu.put(name, item);
+    checkDisplayMenu();
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return The current renderer.
+   */
+  public NodeRenderer getRenderer() {
+    return renderer;
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return The current strategy.
+   */
+  public TreeStrategy getStrategy() {
+    return strategy;
+  }
+
+  /**
+   * Checks if a menu item is already registered.
+   * 
+   * @param r The associated class.
+   * @return <code>true</code> if the item is already registered.
+   */
+  public boolean isRegisteredMenuItem(final Class<?> r) {
+    final String name = r.getName();
+    return displayMenu.containsKey(name);
+  }
+
+  /**
+   * Ensures that the display menu selection are correct, i.e. the correct
+   * renderer, the correct strategy, or the latex button is selected.
+   */
+  private void checkDisplayMenu() {
+    if(!latexMethod) {
+      if(renderer != null) {
+        final String name = renderer.getClass().getName();
+        if(displayMenu.containsKey(name)) {
+          displayMenu.get(name).setSelected(true);
+        }
+      }
+      if(strategy != null) {
+        final String name = strategy.getClass().getName();
+        if(displayMenu.containsKey(name)) {
+          displayMenu.get(name).setSelected(true);
+        }
+      }
+    } else {
+      final String ri = NodeRenderer.class.getName();
+      if(displayMenu.containsKey(ri)) {
+        displayMenu.get(ri).setSelected(true);
+      }
+      final String si = TreeStrategy.class.getName();
+      if(displayMenu.containsKey(si)) {
+        displayMenu.get(si).setSelected(true);
+      }
+    }
+    final String name = LaTeXDisplay.class.getName();
+    if(displayMenu.containsKey(name)) {
+      displayMenu.get(name).setSelected(latexMethod);
+    }
   }
 
   /**
