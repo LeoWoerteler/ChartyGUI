@@ -9,11 +9,8 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import de.woerteler.latex.LatexDisplay;
-import de.woerteler.tree.DirectDisplay;
 import de.woerteler.tree.render.DefaultRenderer;
 import de.woerteler.tree.render.SimpleRenderer;
-import de.woerteler.tree.strategy.BottomUpStrategy;
 
 /**
  * A class containing all GUI interactions.
@@ -89,7 +86,7 @@ public class GUIActions {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        ctrl.setMethod(new DirectDisplay(new DefaultRenderer(), new BottomUpStrategy()));
+        ctrl.setRenderer(new DefaultRenderer());
       }
 
     });
@@ -99,7 +96,7 @@ public class GUIActions {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        ctrl.setMethod(new DirectDisplay(new SimpleRenderer(), new BottomUpStrategy()));
+        ctrl.setRenderer(new SimpleRenderer());
       }
 
     });
@@ -109,7 +106,7 @@ public class GUIActions {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        ctrl.setMethod(new LatexDisplay());
+        ctrl.setLaTeXMethod();
       }
 
     });

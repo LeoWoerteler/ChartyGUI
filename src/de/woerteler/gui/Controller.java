@@ -20,9 +20,12 @@ import de.woerteler.charty.ParserException;
 import de.woerteler.charty.ParserInfoListener;
 import de.woerteler.charty.Tokenizer;
 import de.woerteler.gui.GUIActions.ActionID;
+import de.woerteler.latex.LaTeXDisplay;
 import de.woerteler.tree.DirectDisplay;
 import de.woerteler.tree.render.DefaultRenderer;
+import de.woerteler.tree.render.NodeRenderer;
 import de.woerteler.tree.strategy.BottomUpStrategy;
+import de.woerteler.tree.strategy.TreeStrategy;
 import de.woerteler.util.IOUtils;
 
 /**
@@ -49,9 +52,30 @@ public final class Controller implements ParserInfoListener {
   /** Lock for the parse method. */
   private final Object parseLock = new Object();
 
+  /** The syntax tree render method. */
+  private NodeRenderer renderer = new DefaultRenderer();
+
+  /** The syntax tree positioning strategy. */
+  private TreeStrategy strategy = new BottomUpStrategy();
+
+  /** Whether to use the LaTeX display method. */
+  private boolean latexMethod;
+
   /** The method to display the syntax tree. */
-  private DisplayMethod method = new DirectDisplay(new DefaultRenderer(),
-      new BottomUpStrategy());
+  private DisplayMethod method;
+
+  /**
+   * Creates a display method out of the configuration.
+   * 
+   * @param renderer The node renderer.
+   * @param strategy The node placing strategy.
+   * @param latexMethod Whether to use the LaTeX display method.
+   * @return The created display method.
+   */
+  private static DisplayMethod createMethod(final NodeRenderer renderer,
+      final TreeStrategy strategy, final boolean latexMethod) {
+    return latexMethod ? new LaTeXDisplay() : new DirectDisplay(renderer, strategy);
+  }
 
   /**
    * Constructor taking the application's {@link DataModel model}.
@@ -63,6 +87,7 @@ public final class Controller implements ParserInfoListener {
     gui = g;
     model = mod;
     actions = new GUIActions(this);
+    setMethod();
   }
 
   /**
@@ -76,22 +101,42 @@ public final class Controller implements ParserInfoListener {
   }
 
   /**
-   * Setter.
-   * 
-   * @param method The display method.
+   * Sets the LaTeX render method.
    */
-  public void setMethod(final DisplayMethod method) {
-    this.method = method;
+  public void setLaTeXMethod() {
+    latexMethod = true;
+    setMethod();
+  }
+
+  /**
+   * Sets the current tree display method.
+   */
+  private void setMethod() {
+    method = createMethod(renderer, strategy, latexMethod);
     refresh();
   }
 
   /**
-   * Getter.
+   * Sets the strategy to position nodes of the syntax tree. This clears the
+   * LaTeX flag.
    * 
-   * @return The current display method.
+   * @param strategy The new strategy.
    */
-  public DisplayMethod getMethod() {
-    return method;
+  public void setStrategy(final TreeStrategy strategy) {
+    latexMethod = false;
+    this.strategy = strategy;
+    setMethod();
+  }
+
+  /**
+   * Sets the syntax tree render method. This clears the LaTeX flag.
+   * 
+   * @param renderer The new renderer.
+   */
+  public void setRenderer(final NodeRenderer renderer) {
+    latexMethod = false;
+    this.renderer = renderer;
+    setMethod();
   }
 
   /**
