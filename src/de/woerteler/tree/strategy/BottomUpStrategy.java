@@ -1,6 +1,5 @@
 package de.woerteler.tree.strategy;
 
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import de.woerteler.tree.Measures;
@@ -122,37 +121,14 @@ final class Node extends LayoutNode<Node> {
     }
   }
 
-  /**
-   * The horizontal center of the nodes rectangle in absolute coordinates.
-   * 
-   * @return horizontal center
-   */
+  @Override
   public double getCenterX() {
     return getLeftSpace() + getRelativeX();
   }
 
-  /**
-   * The vertical center of the nodes rectangle in absolute coordinates.
-   * 
-   * @return vertical center
-   */
+  @Override
   public double getCenterY() {
-    return getTop() + getHeight() * 0.5;
-  }
-
-  @Override
-  public double getTop() {
     return y;
-  }
-
-  @Override
-  public double getLeft() {
-    return getCenterX() - getWidth() * 0.5;
-  }
-
-  @Override
-  public Point2D getCenter() {
-    return new Point2D.Double(getCenterX(), getCenterY());
   }
 
   /** The cached value of the bounding box. */

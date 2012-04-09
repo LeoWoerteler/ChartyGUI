@@ -88,18 +88,36 @@ public abstract class LayoutNode<T extends DisplayableNode> implements Displayab
   }
 
   /**
+   * The horizontal center of the nodes rectangle in absolute coordinates.
+   * 
+   * @return horizontal center
+   */
+  public abstract double getCenterX();
+
+  /**
+   * The vertical center of the nodes rectangle in absolute coordinates.
+   * 
+   * @return vertical center
+   */
+  public abstract double getCenterY();
+
+  /**
    * The left side of the nodes rectangle in absolute coordinates.
    * 
    * @return left
    */
-  public abstract double getLeft();
+  public double getLeft() {
+    return getCenterX() - getWidth() * .5;
+  }
 
   /**
    * The top of the nodes rectangle in absolute coordinates.
    * 
    * @return top
    */
-  public abstract double getTop();
+  public double getTop() {
+    return getCenterY() - getHeight() * .5;
+  }
 
   /**
    * The bottom of the nodes rectangle in absolute coordinates.
@@ -117,7 +135,7 @@ public abstract class LayoutNode<T extends DisplayableNode> implements Displayab
 
   @Override
   public Point2D getCenter() {
-    return new Point2D.Double(getLeft() + getWidth() * .5, getTop() + getHeight() * .5);
+    return new Point2D.Double(getCenterX(), getCenterY());
   }
 
   /**
