@@ -58,6 +58,9 @@ public class GUIActions {
     /** Sets to the custom strategy. */
     CUSTOM_STRATEGY,
 
+    /** Saves the current syntax tree. */
+    SYNTAX_TREE_SAVE,
+
     /** Saves the current view. */
     VIEW_SAVE,
 
@@ -155,6 +158,17 @@ public class GUIActions {
       @Override
       public void actionPerformed(final ActionEvent e) {
         ctrl.setStrategy(ts);
+      }
+
+    });
+    actionMap.put(ActionID.SYNTAX_TREE_SAVE, new AbstractAction(
+        "Save current syntax tree...") {
+
+      private static final long serialVersionUID = 4364532498561812929L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.saveTree();
       }
 
     });

@@ -381,13 +381,17 @@ public final class Controller implements ParserInfoListener {
     if(!gui.canSaveView()) return;
     final File file = gui.saveViewDialog();
     if(file == null) return;
-    File dest;
-    if(!file.getName().contains(".")) {
-      dest = new File(file.getParentFile(), file.getName() + ".png");
-    } else {
-      dest = file;
-    }
-    gui.saveView(dest);
+    gui.saveView(file);
+  }
+
+  /**
+   * Saves the current syntax tree.
+   */
+  public void saveTree() {
+    if(!gui.canSaveView()) return;
+    final File file = gui.saveViewDialog();
+    if(file == null) return;
+    gui.saveTree(file);
   }
 
   /** The input phrase component. */

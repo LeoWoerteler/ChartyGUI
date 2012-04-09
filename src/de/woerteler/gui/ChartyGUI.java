@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -178,6 +179,7 @@ public final class ChartyGUI extends JFrame {
     addMenuItem(DISPLAY_LATEX, LaTeXDisplay.class, displayMenu, null);
     displayMenu.addSeparator();
     displayMenu.add(ctrl.getActionFor(VIEW_SAVE));
+    displayMenu.add(ctrl.getActionFor(SYNTAX_TREE_SAVE));
     // Left side: edit grammar and phrase
     editor = new GrammarEditor(ctrl);
     model.setDocument(editor.getDocument());
@@ -390,6 +392,27 @@ public final class ChartyGUI extends JFrame {
   }
 
   /**
+   * Saves the current syntax tree.
+   * 
+   * @param file The destination.
+   */
+  public void saveTree(final File file) {
+    final Rectangle2D box = treeViewer.getSyntaxTreeBoundingBox();
+    final BufferedImage img = new BufferedImage((int) Math.ceil(box.getWidth()),
+        (int) Math.ceil(box.getHeight()), BufferedImage.TYPE_INT_ARGB);
+    final Graphics2D gfx = (Graphics2D) img.getGraphics();
+    gfx.translate(-box.getMinX(), -box.getMinY());
+    treeViewer.drawTree(gfx);
+    gfx.dispose();
+    final boolean isPng = file.getName().endsWith(".png");
+    try {
+      ImageIO.write(img, isPng ? "PNG" : "JPG", file);
+    } catch(final IOException e) {
+      showError(e.getMessage());
+    }
+  }
+
+  /**
    * Refreshes the ini values responsible for the window.
    */
   private void refreshIniValues() {
@@ -460,12 +483,12 @@ public final class ChartyGUI extends JFrame {
     final JFileChooser choose = new JFileChooser(dir);
     choose.setMultiSelectionEnabled(false);
     choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    final File res = choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION
-        ? choose.getSelectedFile() : null;
-        if(res != null) {
-          INI.setObject("last", "grammarDir", res.getParentFile());
-        }
-        return res;
+    final boolean approved = choose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION;
+    final File res = approved ? choose.getSelectedFile() : null;
+    if(res != null) {
+      INI.setObject("last", "grammarDir", res.getParentFile());
+    }
+    return res;
   }
 
   /**
@@ -479,15 +502,15 @@ public final class ChartyGUI extends JFrame {
     if(dir == null || !dir.exists()) {
       dir = INI.getObject("last", "grammarDir", Converter.FILE_CONVERTER, HOME_STR);
     }
-    final JFileChooser saveDialog = new JFileChooser(dir);
-    saveDialog.setMultiSelectionEnabled(false);
-    saveDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    final File res = (saveDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION)
-        ? saveDialog.getSelectedFile() : null;
-        if(res != null) {
-          INI.setObject("last", "grammarDir", res.getParentFile());
-        }
-        return res;
+    final JFileChooser choose = new JFileChooser(dir);
+    choose.setMultiSelectionEnabled(false);
+    choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    final boolean approved = choose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION;
+    final File res = approved ? choose.getSelectedFile() : null;
+    if(res != null) {
+      INI.setObject("last", "grammarDir", res.getParentFile());
+    }
+    return res;
   }
 
   /**
@@ -500,12 +523,14 @@ public final class ChartyGUI extends JFrame {
         Converter.FILE_CONVERTER, HOME_STR));
     choose.setFileFilter(new FileNameExtensionFilter("Image (*.png, *.jpg, *.jpeg)",
         "jpg", "jpeg", "png"));
-    final File res = (choose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION)
-        ? choose.getSelectedFile() : null;
-        if(res != null) {
-          INI.setObject("last", "viewDir", res.getParentFile());
-        }
-        return res;
+    final boolean approved = choose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION;
+    final File res = approved ? choose.getSelectedFile() : null;
+    if(res == null) return null;
+    final File par = res.getParentFile();
+    final String name = res.getName();
+    INI.setObject("last", "viewDir", par);
+    if(!name.contains(".")) return new File(par, name + ".png");
+    return res;
   }
 
 }

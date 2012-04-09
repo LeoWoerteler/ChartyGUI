@@ -302,12 +302,32 @@ public final class ParseTreeViewer extends JPanel {
   }
 
   /**
+   * Draws the tree directly.
+   * 
+   * @param gfx The device the tree is drawn to.
+   */
+  public void drawTree(final Graphics2D gfx) {
+    gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON);
+    tree.drawTree(gfx);
+  }
+
+  /**
    * Getter.
    * 
    * @return The size of the syntax tree view component i.e. the size of the drawing area.
    */
   public Rectangle getTreeViewSize() {
     return new Rectangle(display.getSize());
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return The bounding box of the syntax tree.
+   */
+  public Rectangle2D getSyntaxTreeBoundingBox() {
+    return tree.getBoundingBox();
   }
 
 }
