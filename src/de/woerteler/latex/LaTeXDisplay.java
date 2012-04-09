@@ -14,7 +14,7 @@ import de.woerteler.charty.Displayer;
  * 
  * @author Joschi <josua.krause@googlemail.com>
  */
-public class LatexDisplay implements DisplayMethod {
+public class LaTeXDisplay implements DisplayMethod {
 
   /**
    * Creates a LaTeX document for this parse tree, with help from the Qtree
