@@ -42,10 +42,10 @@ TreeStrategy {
    * 
    * @param parent The parent of the node or <code>null</code> if it is the root
    *          node.
-   * @param str The string that will be the label.
+   * @param label The string that will be the label.
    * @param m The measures for the layout.
    * @return The newly created node.
    */
-  protected abstract T createNode(final T parent, final String str, final Measures m);
+  protected abstract T createNode(final T parent, final String label, final Measures m);
 
 }

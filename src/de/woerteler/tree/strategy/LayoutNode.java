@@ -65,7 +65,21 @@ public abstract class LayoutNode<T extends DisplayableNode> implements Displayab
   }
 
   @Override
-  public T getParentNode() {
+  public void invalidate() {
+    bbox = null;
+    doInvalidate();
+    if(getParent() != null) {
+      getParent().invalidate();
+    }
+  }
+
+  /**
+   * Does the invalidation.
+   */
+  protected abstract void doInvalidate();
+
+  @Override
+  public T getParent() {
     return parent;
   }
 
@@ -128,11 +142,6 @@ public abstract class LayoutNode<T extends DisplayableNode> implements Displayab
     return getTop() + getHeight();
   }
 
-  /**
-   * Resets all cached values.
-   */
-  protected abstract void invalidate();
-
   @Override
   public Point2D getCenter() {
     return new Point2D.Double(getCenterX(), getCenterY());
@@ -146,7 +155,7 @@ public abstract class LayoutNode<T extends DisplayableNode> implements Displayab
    *           child.
    */
   public void addChild(final T n) {
-    if(n.getParentNode() != this) throw new IllegalArgumentException(
+    if(n.getParent() != this) throw new IllegalArgumentException(
         "node must be parent of child");
     childs.add(n);
     invalidate();
@@ -155,6 +164,24 @@ public abstract class LayoutNode<T extends DisplayableNode> implements Displayab
   @Override
   public Iterable<T> getChilds() {
     return childs;
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return Number of children.
+   */
+  public int getNumberOfChilds() {
+    return childs.size();
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return Whether this node is a leaf.
+   */
+  public boolean isLeaf() {
+    return getNumberOfChilds() == 0;
   }
 
   @Override
@@ -175,6 +202,21 @@ public abstract class LayoutNode<T extends DisplayableNode> implements Displayab
   @Override
   public float getTextBottom() {
     return (float) (getBottom() + measures.stringFromBelow());
+  }
+
+  /** The cached value of the bounding box. */
+  private Rectangle2D bbox;
+
+  @Override
+  public Rectangle2D getBoundingBox() {
+    if(bbox == null) {
+      Rectangle2D rect = getRect();
+      for(final T c : getChilds()) {
+        rect = rect.createUnion(c.getBoundingBox());
+      }
+      bbox = rect;
+    }
+    return bbox;
   }
 
 }

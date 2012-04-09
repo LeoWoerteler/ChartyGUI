@@ -41,6 +41,7 @@ import de.woerteler.tree.render.DefaultRenderer;
 import de.woerteler.tree.render.NodeRenderer;
 import de.woerteler.tree.render.SimpleRenderer;
 import de.woerteler.tree.strategy.BottomUpStrategy;
+import de.woerteler.tree.strategy.TopDownStrategy;
 import de.woerteler.tree.strategy.TreeStrategy;
 import de.woerteler.util.IOUtils;
 
@@ -169,6 +170,7 @@ public final class ChartyGUI extends JFrame {
     displayMenu.addSeparator();
     // strategy items
     addMenuItem(DISPLAY_BOTTOM_UP, BottomUpStrategy.class, displayMenu, strategyGroup);
+    addMenuItem(DISPLAY_TOP_DOWN, TopDownStrategy.class, displayMenu, strategyGroup);
     // custom item as last
     if(Controller.CUSTOM_STRATEGY != null) {
       addMenuItem(CUSTOM_STRATEGY, Controller.CUSTOM_STRATEGY.getClass(),

@@ -13,6 +13,7 @@ import de.woerteler.tree.render.DefaultRenderer;
 import de.woerteler.tree.render.NodeRenderer;
 import de.woerteler.tree.render.SimpleRenderer;
 import de.woerteler.tree.strategy.BottomUpStrategy;
+import de.woerteler.tree.strategy.TopDownStrategy;
 import de.woerteler.tree.strategy.TreeStrategy;
 
 /**
@@ -48,6 +49,9 @@ public class GUIActions {
 
     /** Sets to the bottom up syntax tree strategy. */
     DISPLAY_BOTTOM_UP,
+
+    /** Sets to the even distributed syntax tree strategy. */
+    DISPLAY_TOP_DOWN,
 
     /** Sets to the latex syntax tree display method. */
     DISPLAY_LATEX,
@@ -122,6 +126,17 @@ public class GUIActions {
       @Override
       public void actionPerformed(final ActionEvent e) {
         ctrl.setStrategy(new BottomUpStrategy());
+      }
+
+    });
+    actionMap.put(ActionID.DISPLAY_TOP_DOWN,
+        new AbstractAction("Top-down strategy") {
+
+      private static final long serialVersionUID = 2544135868930137253L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.setStrategy(new TopDownStrategy());
       }
 
     });

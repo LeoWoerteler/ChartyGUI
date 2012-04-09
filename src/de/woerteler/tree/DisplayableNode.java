@@ -66,6 +66,11 @@ public interface DisplayableNode {
    * @return The parent of the node or <code>null</code> if the node is the
    *         root.
    */
-  DisplayableNode getParentNode();
+  DisplayableNode getParent();
+
+  /**
+   * Resets all cached values.
+   */
+  void invalidate();
 
 }
