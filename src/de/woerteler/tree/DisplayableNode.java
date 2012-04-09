@@ -60,4 +60,12 @@ public interface DisplayableNode {
    */
   Rectangle2D getBoundingBox();
 
+  /**
+   * Getter.
+   * 
+   * @return The parent of the node or <code>null</code> if the node is the
+   *         root.
+   */
+  DisplayableNode getParentNode();
+
 }

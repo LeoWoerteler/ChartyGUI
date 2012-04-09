@@ -88,7 +88,7 @@ public class DirectDisplay implements DisplayMethod {
     }
     final FontMetrics fm = dummyGfx.getFontMetrics();
     final TreeNode tn = generateNodeStructure(e, (TreeNode) null);
-    final DisplayableNode n = strategy.generateNodeStructure(tn, fm);
+    final DisplayableNode n = strategy.generateNodeStructure(tn, new Measures(fm));
     dummyGfx.dispose();
     dummy.flush();
     return n;
