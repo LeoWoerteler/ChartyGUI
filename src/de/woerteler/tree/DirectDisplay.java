@@ -11,6 +11,7 @@ import de.woerteler.charty.ChartParser.Edge;
 import de.woerteler.charty.DisplayMethod;
 import de.woerteler.charty.Displayer;
 import de.woerteler.tree.render.NodeRenderer;
+import de.woerteler.tree.strategy.TreeStrategy;
 
 /**
  * Generates a graphical representation of a syntax tree via direct drawing.
@@ -31,27 +32,35 @@ public class DirectDisplay implements DisplayMethod {
   private final NodeRenderer renderer;
 
   /**
+   * The strategy that is used to place the nodes.
+   */
+  private final TreeStrategy strategy;
+
+  /**
    * Creates a direct on screen display.
    * 
    * @param renderer The renderer to draw the tree.
+   * @param strategy The strategy to place the nodes.
    */
-  public DirectDisplay(final NodeRenderer renderer) {
+  public DirectDisplay(final NodeRenderer renderer, final TreeStrategy strategy) {
     this.renderer = renderer;
+    this.strategy = strategy;
   }
 
   @Override
   public Displayer getDisplayer(final Edge e) throws Exception {
+    final Font curFont = font;
     final NodeRenderer render = renderer;
-    final Node n = generateNodeStructure(e);
+    final DisplayableNode n = generateNodeStructure(e, curFont);
     final Rectangle2D bbox = n.getBoundingBox();
     return new Displayer() {
 
       @Override
       public void drawTree(final Graphics2D gfx) {
-        if(font != null) {
-          gfx.setFont(font);
+        if(curFont != null) {
+          gfx.setFont(curFont);
         }
-        n.draw(gfx, render);
+        render.render(gfx, n);
       }
 
       @Override
@@ -63,45 +72,45 @@ public class DirectDisplay implements DisplayMethod {
   }
 
   /**
-   * Builds a {@link Node} structure out of syntax tree edges.
+   * Builds a {@link DisplayableNode} structure out of syntax tree edges.
    * 
    * @param e The root node.
+   * @param curFont The font that will be used to draw.
    * @return A draw-able node structure.
    */
-  protected Node generateNodeStructure(final Edge e) {
+  private DisplayableNode generateNodeStructure(final Edge e, final Font curFont) {
     // generate a dummy image to get the font metrics of the font
     final BufferedImage dummy = new BufferedImage(1, 1,
         BufferedImage.TYPE_INT_ARGB);
     final Graphics dummyGfx = dummy.getGraphics();
-    if(font != null) {
-      dummyGfx.setFont(font);
+    if(curFont != null) {
+      dummyGfx.setFont(curFont);
     }
     final FontMetrics fm = dummyGfx.getFontMetrics();
-    final Node n = generateNodeStructure(e, null, fm);
+    final TreeNode tn = generateNodeStructure(e, (TreeNode) null);
+    final DisplayableNode n = strategy.generateNodeStructure(tn, new Measures(fm));
     dummyGfx.dispose();
     dummy.flush();
     return n;
   }
 
   /**
-   * Builds a {@link Node} structure out of parts of a syntax tree.
+   * Builds a {@link TreeNode} structure out of parts of a syntax tree.
    * 
    * @param e A syntax tree node.
    * @param parent The parent of the current node.
-   * @param fm The font metrics for displaying the labels correctly.
    * @return The node structure.
    */
-  private Node generateNodeStructure(final Edge e, final Node parent,
-      final FontMetrics fm) {
-    final Node n = Node.createNode(parent, e.lhs, fm);
+  private static TreeNode generateNodeStructure(final Edge e, final TreeNode parent) {
+    final TreeNode n = new TreeNode(parent, e.lhs);
     if(e.hasRealChildren()) {
       for(final Edge c : e) {
-        final Node nc = generateNodeStructure(c, n, fm);
+        final TreeNode nc = generateNodeStructure(c, n);
         n.addChild(nc);
       }
     } else {
       for(final String label : e.rhs) {
-        n.addChild(Node.createNode(n, label, fm));
+        n.addChild(new TreeNode(n, label));
       }
     }
     return n;

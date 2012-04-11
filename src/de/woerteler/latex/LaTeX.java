@@ -30,7 +30,7 @@ public final class LaTeX {
 
   /** GhostScript command line. */
   private static final String[] GHOST_SCRIPT_ARGS = { "-dNOPAUSE", "-dBATCH",
-      "-q", "-sDEVICE=pngalpha", "-r200", "-sOutputFile=-", "-" };
+    "-q", "-sDEVICE=pngalpha", "-r200", "-sOutputFile=-", "-" };
 
   /** Temporary directory. */
   private static File tempDir;
@@ -73,11 +73,9 @@ public final class LaTeX {
           pdfLaTeX = mac.getPath();
         } else {
           final String other = Programs.which("pdflatex");
-          if (other == null) {
-            throw new IOException(
-                "Can't find 'pdflatex', please check your "
-                    + "PATH environment variable.");
-          }
+          if (other == null) throw new IOException(
+              "Can't find 'pdflatex', please check your "
+                  + "PATH environment variable.");
           pdfLaTeX = other;
         }
       }
@@ -103,7 +101,7 @@ public final class LaTeX {
 
     final File pdf = new File(temp.getPath().replaceFirst("\\.tex$", ".pdf"));
 
-    return IOUtils.readFile(pdf);
+    return IOUtils.readFully(pdf);
   }
 
   /**
@@ -125,11 +123,9 @@ public final class LaTeX {
             break;
           }
         }
-        if (ghostScript == null) {
-          throw new IOException(
-              "Can't find GhostScript (gs/gswin32c), please check"
-                  + " your PATH environment variable.");
-        }
+        if (ghostScript == null) throw new IOException(
+            "Can't find GhostScript (gs/gswin32c), please check"
+                + " your PATH environment variable.");
       }
     }
 

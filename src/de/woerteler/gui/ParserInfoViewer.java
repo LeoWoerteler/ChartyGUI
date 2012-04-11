@@ -1,5 +1,6 @@
 package de.woerteler.gui;
 
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
@@ -31,11 +32,12 @@ public class ParserInfoViewer extends JScrollPane {
         SwingUtilities.invokeLater(new Runnable() {
           @Override
           public void run() {
-            getVerticalScrollBar().setValue(
-                getVerticalScrollBar().getMaximum());
+            final JScrollBar bar = getVerticalScrollBar();
+            bar.setValue(bar.getMaximum());
           }
         });
       }
+
     });
     table.setFillsViewportHeight(true);
     table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);

@@ -1,8 +1,16 @@
 package de.woerteler.gui;
 
+import static de.woerteler.gui.ChartyGUI.*;
+
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
@@ -10,6 +18,7 @@ import javax.swing.text.Document;
 
 import de.woerteler.charty.Displayer;
 import de.woerteler.charty.ParseTree;
+import de.woerteler.util.IOUtils;
 
 /**
  * The GUI application's data model.
@@ -106,6 +115,28 @@ public final class DataModel {
    */
   public void setDocument(final Document doc) {
     grammar = doc;
+    grammar.addDocumentListener(new DocumentListener() {
+
+      @Override
+      public void removeUpdate(final DocumentEvent e) {
+        changed();
+      }
+
+      @Override
+      public void insertUpdate(final DocumentEvent e) {
+        changed();
+      }
+
+      @Override
+      public void changedUpdate(final DocumentEvent e) {
+        changed();
+      }
+
+      private void changed() {
+        refreshTitle(true);
+      }
+
+    });
   }
 
   /**
@@ -137,11 +168,8 @@ public final class DataModel {
    * @param f file
    * @param contents contents of the file
    */
-  public synchronized void setOpenedFile(final File f, final String contents) {
+  protected synchronized void setOpenedFile(final File f, final String contents) {
     opened = f;
-    if(f != null) {
-      gui.setTitle(f.getPath());
-    }
     try {
       grammar.remove(0, grammar.getLength());
       grammar.insertString(0, contents, null);
@@ -149,6 +177,75 @@ public final class DataModel {
     } catch(final BadLocationException e) {
       e.printStackTrace();
     }
+    if(f != null) {
+      INI.setObject("last", "grammar", f);
+    } else {
+      INI.set("last", "grammar", "");
+    }
+    refreshTitle(false);
+  }
+
+  /**
+   * Sets the currently opened file.
+   * 
+   * @param f file
+   * @param content contents of the file
+   * @throws IOException If the file could not be read.
+   */
+  protected void setOpenedFile(final File f, final InputStream content)
+      throws IOException {
+    setOpenedFile(f, IOUtils.readString(content));
+  }
+
+  /**
+   * The resource name of the default grammar.
+   */
+  public static final String DEFAULT_GRAMMAR = "PSG1.txt";
+
+  /**
+   * Sets the currently opened grammar to the default grammar, i.e. a new
+   * grammar not associated with a file. The default grammar is a small example
+   * grammar.
+   * 
+   * @throws IOException If the default grammar can not be found.
+   */
+  public void setDefaultGrammar() throws IOException {
+    setOpenedFile(null, IOUtils.getResource(DEFAULT_GRAMMAR));
+  }
+
+  /**
+   * Sets the currently opened file.
+   * 
+   * @param file The file.
+   * @throws IOException If the file could not be read.
+   */
+  public void setOpenedFile(final File file) throws IOException {
+    setOpenedFile(file, new BufferedInputStream(new FileInputStream(file)));
+  }
+
+  /**
+   * Whether the grammar has been changed in the editor since the last save.
+   */
+  private boolean grammarHasChanged;
+
+  /**
+   * Refreshes the main window title.
+   * 
+   * @param changed Whether the grammar editor has changes.
+   */
+  public void refreshTitle(final boolean changed) {
+    grammarHasChanged = changed;
+    gui.setTitle(opened != null ? opened.getPath() : null, changed);
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return Whether the grammar has been changed in the editor since the last
+   *         save.
+   */
+  public boolean grammarHasChanged() {
+    return grammarHasChanged;
   }
 
   /**

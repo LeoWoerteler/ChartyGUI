@@ -1,13 +1,17 @@
 package de.woerteler.gui;
 
+import static de.woerteler.gui.ChartyGUI.*;
+import static de.woerteler.gui.GUIActions.ActionID.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.Action;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 
 import de.woerteler.charty.ChartParser;
 import de.woerteler.charty.DisplayMethod;
@@ -19,8 +23,12 @@ import de.woerteler.charty.ParserException;
 import de.woerteler.charty.ParserInfoListener;
 import de.woerteler.charty.Tokenizer;
 import de.woerteler.gui.GUIActions.ActionID;
+import de.woerteler.latex.LaTeXDisplay;
 import de.woerteler.tree.DirectDisplay;
 import de.woerteler.tree.render.DefaultRenderer;
+import de.woerteler.tree.render.NodeRenderer;
+import de.woerteler.tree.strategy.BottomUpStrategy;
+import de.woerteler.tree.strategy.TreeStrategy;
 import de.woerteler.util.IOUtils;
 
 /**
@@ -31,6 +39,22 @@ import de.woerteler.util.IOUtils;
  */
 public final class Controller implements ParserInfoListener {
 
+  /**
+   * A custom renderer as defined in the ini file.
+   */
+  public static final NodeRenderer CUSTOM_RENDERER = INI.getInstance("custom",
+      "renderer", NodeRenderer.class, "");
+
+  /**
+   * A custom strategy as defined in the ini file.
+   */
+  public static final TreeStrategy CUSTOM_STRATEGY = INI.getInstance("custom",
+      "strategy", TreeStrategy.class, "");
+
+  /** The info text for saving editor changes when closing the window. */
+  private static final String SAVE_INFO = "<html>The grammar has unsaved changes." +
+      "<br>Would you like to save it now?";
+
   /** The holder of all actions. */
   private final GUIActions actions;
 
@@ -40,11 +64,38 @@ public final class Controller implements ParserInfoListener {
   /** The GUI. */
   private final ChartyGUI gui;
 
+  /** The renderer menu item lookup. */
+  private final Map<String, JRadioButtonMenuItem> displayMenu;
+
   /** Lock for the parse method. */
   private final Object parseLock = new Object();
 
+  /** The syntax tree render method. */
+  private NodeRenderer renderer = INI.getInstance("last", "renderer", NodeRenderer.class,
+      DefaultRenderer.class);
+
+  /** The syntax tree positioning strategy. */
+  private TreeStrategy strategy = INI.getInstance("last", "strategy", TreeStrategy.class,
+      BottomUpStrategy.class);
+
+  /** Whether to use the LaTeX display method. */
+  private boolean latexMethod = INI.getBoolean("last", "latex");
+
   /** The method to display the syntax tree. */
-  private DisplayMethod method = new DirectDisplay(new DefaultRenderer());
+  private DisplayMethod method;
+
+  /**
+   * Creates a display method out of the configuration.
+   * 
+   * @param renderer The node renderer.
+   * @param strategy The node placing strategy.
+   * @param latexMethod Whether to use the LaTeX display method.
+   * @return The created display method.
+   */
+  private static DisplayMethod createMethod(final NodeRenderer renderer,
+      final TreeStrategy strategy, final boolean latexMethod) {
+    return latexMethod ? new LaTeXDisplay() : new DirectDisplay(renderer, strategy);
+  }
 
   /**
    * Constructor taking the application's {@link DataModel model}.
@@ -56,6 +107,8 @@ public final class Controller implements ParserInfoListener {
     gui = g;
     model = mod;
     actions = new GUIActions(this);
+    displayMenu = new HashMap<String, JRadioButtonMenuItem>();
+    setMethod();
   }
 
   /**
@@ -69,56 +122,167 @@ public final class Controller implements ParserInfoListener {
   }
 
   /**
-   * Setter.
-   * 
-   * @param method The display method.
+   * Sets the LaTeX render method.
    */
-  public void setMethod(final DisplayMethod method) {
-    this.method = method;
-    refresh();
+  public void setLaTeXMethod() {
+    latexMethod = true;
+    setMethod();
   }
 
   /**
-   * Getter.
-   * 
-   * @return The current display method.
+   * Sets the current tree display method.
    */
-  public DisplayMethod getMethod() {
-    return method;
+  private void setMethod() {
+    method = createMethod(renderer, strategy, latexMethod);
+    refresh();
+    checkDisplayMenu();
+  }
+
+  /**
+   * Sets the strategy to position nodes of the syntax tree. This clears the
+   * LaTeX flag.
+   * 
+   * @param strategy The new strategy.
+   */
+  public void setStrategy(final TreeStrategy strategy) {
+    latexMethod = false;
+    this.strategy = strategy;
+    setMethod();
+  }
+
+  /**
+   * Sets the syntax tree render method. This clears the LaTeX flag.
+   * 
+   * @param renderer The new renderer.
+   */
+  public void setRenderer(final NodeRenderer renderer) {
+    latexMethod = false;
+    this.renderer = renderer;
+    setMethod();
+  }
+
+  /**
+   * Registers a display menu item.
+   * 
+   * @param r The associated class.
+   * @param item The item.
+   */
+  public void registerDisplayMenuItem(final Class<?> r,
+      final JRadioButtonMenuItem item) {
+    final String name = r.getName();
+    displayMenu.put(name, item);
+    checkDisplayMenu();
+  }
+
+  /**
+   * Ensures that the display menu selection are correct, i.e. the correct
+   * renderer, the correct strategy, or the latex button is selected.
+   */
+  private void checkDisplayMenu() {
+    if(!latexMethod) {
+      if(renderer != null) {
+        final String name = renderer.getClass().getName();
+        if(displayMenu.containsKey(name)) {
+          displayMenu.get(name).setSelected(true);
+        }
+      }
+      if(strategy != null) {
+        final String name = strategy.getClass().getName();
+        if(displayMenu.containsKey(name)) {
+          displayMenu.get(name).setSelected(true);
+        }
+      }
+    } else {
+      final String ri = NodeRenderer.class.getName();
+      if(displayMenu.containsKey(ri)) {
+        displayMenu.get(ri).setSelected(true);
+      }
+      final String si = TreeStrategy.class.getName();
+      if(displayMenu.containsKey(si)) {
+        displayMenu.get(si).setSelected(true);
+      }
+    }
+    final String name = LaTeXDisplay.class.getName();
+    if(displayMenu.containsKey(name)) {
+      displayMenu.get(name).setSelected(latexMethod);
+    }
+  }
+
+  /**
+   * Closes the current grammar. Asks to save the file if the grammar has
+   * unsaved changes. The close operation can be aborted.
+   * 
+   * @return Whether to abort the close operation.
+   */
+  public boolean closeGrammar() {
+    if(!model.grammarHasChanged()) return false;
+    final int result = JOptionPane.showConfirmDialog(gui, SAVE_INFO,
+        "Unsaved changes...", JOptionPane.YES_NO_CANCEL_OPTION);
+    if(result == JOptionPane.CANCEL_OPTION) return true;
+    if(result == JOptionPane.YES_OPTION) {
+      // since it is our own action we are safe to pass no action event
+      getActionFor(GRAMMAR_SAVE).actionPerformed(null);
+    }
+    return false;
   }
 
   /** Saves the currently open grammar definition. */
   public void saveGrammar() {
-    final File f = model.getOpenedFile();
-    if(f == null) {
-      gui.showError("There's no open file to save!");
+    saveGrammar(model.getOpenedFile());
+  }
+
+  /** Opens a save file dialog to save the grammar definition. */
+  public void saveGrammarAs() {
+    saveGrammar(null);
+  }
+
+  /**
+   * Saves the currently opened grammar to the given file or opens a save file
+   * dialog if the argument is <code>null</code>.
+   * 
+   * @param file The file to save the grammar to or <code>null</code> to open a
+   *          save file dialog.
+   */
+  private void saveGrammar(final File file) {
+    final File f = (file == null) ? gui.saveGrammarDialog(model.getOpenedFile()) : file;
+    if(f == null) return;
+
+    final String content = model.getGrammar();
+    try {
+      IOUtils.writeString(f, content);
+    } catch(final IOException e) {
+      gui.showError("Error writing grammar: " + e.getMessage());
+      return;
     }
+
+    model.setOpenedFile(f, content);
   }
 
   /** Opens a new grammar definition. */
   public void openGrammar() {
-    File dir = null;
-    final File curr = model.getOpenedFile();
-    if(curr != null) {
-      dir = curr.getParentFile();
-    } else {
-      final File home = new File(System.getProperty("user.home"));
-      if(home.exists()) {
-        dir = home;
-      }
-    }
-    final File f = gui.chooseFile(dir);
+    if(closeGrammar()) return;
+    final File f = gui.chooseGrammarDialog(model.getOpenedFile());
     if(f == null) return;
 
-    byte[] contents;
     try {
-      contents = IOUtils.readFile(f);
+      model.setOpenedFile(f);
     } catch(final IOException e) {
       gui.showError("Can't open file: " + e.getMessage());
       return;
     }
+  }
 
-    model.setOpenedFile(f, new String(contents, Charset.forName("UTF-8")));
+  /**
+   * Opens the default grammar not associated with a file. The default grammar
+   * is a small example grammar.
+   */
+  public void newGrammar() {
+    if(closeGrammar()) return;
+    try {
+      model.setDefaultGrammar();
+    } catch(final IOException e) {
+      gui.showError("Can't open default grammar: " + e.getMessage());
+    }
   }
 
   /**
@@ -130,35 +294,32 @@ public final class Controller implements ParserInfoListener {
     final int pos = model.getParseTreePos();
     final ParseTree[] trees = model.getParseTrees();
 
-    if(!next && pos == 0 || next && pos >= trees.length) return;
+    if(!next && pos <= 0 || next && pos >= trees.length - 1) return;
 
-    int npos;
-    if(next) {
-      npos = pos + 1;
-    } else {
-      npos = pos - 1;
-    }
-
-    try {
-      final Displayer disp = trees[npos].getDisplayer(method);
-      model.newParseTreePos(npos, disp);
-    } catch(final Exception e) {
-      gui.showError("Couldn't open parse tree:\n" + e.getMessage());
-    }
+    showTree(pos + (next ? 1 : -1));
   }
 
   /**
    * Ensures that the current syntax tree is redrawn.
    */
   public void refresh() {
-    final int pos = model.getParseTreePos();
+    showTree(model.getParseTreePos());
+  }
+
+  /**
+   * Shows the n'th syntax tree.
+   * 
+   * @param pos The position of the syntax tree in the list of parse trees.
+   */
+  public void showTree(final int pos) {
     final ParseTree[] trees = model.getParseTrees();
-    if(pos >= trees.length) return;
+    if(pos < 0 || pos >= trees.length) return;
     try {
       final Displayer disp = trees[pos].getDisplayer(method);
       model.newParseTreePos(pos, disp);
     } catch(final Exception e) {
       gui.showError("Couldn't open parse tree:\n" + e.getMessage());
+      model.newParseTreePos(0, null);
     }
   }
 
@@ -177,7 +338,6 @@ public final class Controller implements ParserInfoListener {
     final Object pl = parseLock;
     final DataModel m = model;
     final ChartyGUI cg = gui;
-    final DisplayMethod dm = method;
     final Thread t = new Thread() {
 
       @Override
@@ -189,6 +349,7 @@ public final class Controller implements ParserInfoListener {
           try {
             trees = ChartParser.parse(new Grammar(new StringReader(g)),
                 Tokenizer.tokenize(text), Controller.this);
+            INI.set("last", "phrase", text);
           } catch(final ParserException e) {
             cg.showError("Parser error:\n" + e.getMessage());
           } catch(final GrammarSyntaxException e) {
@@ -200,13 +361,7 @@ public final class Controller implements ParserInfoListener {
             return;
           }
 
-          try {
-            final Displayer disp = trees[0].getDisplayer(dm);
-            m.newParseTreePos(0, disp);
-          } catch(final Exception e) {
-            m.newParseTreePos(0, null);
-            cg.showError("Couldn't open parse tree:\n" + e.getMessage());
-          }
+          showTree(0);
         }
       }
 
@@ -223,30 +378,20 @@ public final class Controller implements ParserInfoListener {
    * Saves the current view on the syntax tree.
    */
   public void saveView() {
-    final JFileChooser choose = new JFileChooser();
-    choose.addChoosableFileFilter(new FileFilter() {
+    if(!gui.canSaveView()) return;
+    final File file = gui.saveViewDialog();
+    if(file == null) return;
+    gui.saveView(file);
+  }
 
-      @Override
-      public String getDescription() {
-        return "Image (*.png, *.jpg, *.jpeg)";
-      }
-
-      @Override
-      public boolean accept(final File f) {
-        final String name = f.getName();
-        return !f.isFile() || name.endsWith(".png") || name.endsWith(".jpg")
-            || name.endsWith(".jpeg");
-      }
-    });
-    if(choose.showSaveDialog(gui) != JFileChooser.APPROVE_OPTION) return;
-    final File file = choose.getSelectedFile();
-    File dest;
-    if(!file.getName().contains(".")) {
-      dest = new File(file.getParentFile(), file.getName() + ".png");
-    } else {
-      dest = file;
-    }
-    gui.saveView(dest);
+  /**
+   * Saves the current syntax tree.
+   */
+  public void saveTree() {
+    if(!gui.canSaveView()) return;
+    final File file = gui.saveViewDialog();
+    if(file == null) return;
+    gui.saveTree(file);
   }
 
   /** The input phrase component. */
@@ -273,6 +418,15 @@ public final class Controller implements ParserInfoListener {
    */
   public void exit() {
     gui.dispose();
+  }
+
+  /**
+   * Refreshes the values in the ini file.
+   */
+  public void refreshIniValues() {
+    INI.setInstance("last", "renderer", renderer);
+    INI.setInstance("last", "strategy", strategy);
+    INI.setBoolean("last", "latex", latexMethod);
   }
 
 }

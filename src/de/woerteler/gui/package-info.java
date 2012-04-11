@@ -1,4 +1,4 @@
 /**
- * The package for all GUUI related classes.
+ * The package for all GUI related classes.
  */
 package de.woerteler.gui;

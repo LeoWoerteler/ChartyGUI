@@ -9,10 +9,12 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import de.woerteler.latex.LatexDisplay;
-import de.woerteler.tree.DirectDisplay;
 import de.woerteler.tree.render.DefaultRenderer;
+import de.woerteler.tree.render.NodeRenderer;
 import de.woerteler.tree.render.SimpleRenderer;
+import de.woerteler.tree.strategy.BottomUpStrategy;
+import de.woerteler.tree.strategy.TopDownStrategy;
+import de.woerteler.tree.strategy.TreeStrategy;
 
 /**
  * A class containing all GUI interactions.
@@ -27,11 +29,17 @@ public class GUIActions {
    * @author Joschi <josua.krause@googlemail.com>
    */
   public static enum ActionID {
+    /** Opens a new grammar. */
+    GRAMMAR_NEW,
+
     /** Opens a grammar file. */
     GRAMMAR_OPEN,
 
     /** Saves the current grammar. */
     GRAMMAR_SAVE,
+
+    /** Saves the current grammar with a save file dialog. */
+    GRAMMAR_SAVE_AS,
 
     /** Sets to the default syntax tree display method. */
     DISPLAY_DEFAULT,
@@ -39,8 +47,23 @@ public class GUIActions {
     /** Sets to a boxed syntax tree display method. */
     DISPLAY_BOX,
 
+    /** Sets to the bottom up syntax tree strategy. */
+    DISPLAY_BOTTOM_UP,
+
+    /** Sets to the even distributed syntax tree strategy. */
+    DISPLAY_TOP_DOWN,
+
     /** Sets to the latex syntax tree display method. */
     DISPLAY_LATEX,
+
+    /** Sets to the custom renderer. */
+    CUSTOM_RENDERER,
+
+    /** Sets to the custom strategy. */
+    CUSTOM_STRATEGY,
+
+    /** Saves the current syntax tree. */
+    SYNTAX_TREE_SAVE,
 
     /** Saves the current view. */
     VIEW_SAVE,
@@ -82,7 +105,7 @@ public class GUIActions {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        ctrl.setMethod(new DirectDisplay(new DefaultRenderer()));
+        ctrl.setRenderer(new DefaultRenderer());
       }
 
     });
@@ -92,7 +115,28 @@ public class GUIActions {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        ctrl.setMethod(new DirectDisplay(new SimpleRenderer()));
+        ctrl.setRenderer(new SimpleRenderer());
+      }
+
+    });
+    actionMap.put(ActionID.DISPLAY_BOTTOM_UP, new AbstractAction("Bottom-up strategy") {
+
+      private static final long serialVersionUID = -309282807664400632L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.setStrategy(new BottomUpStrategy());
+      }
+
+    });
+    actionMap.put(ActionID.DISPLAY_TOP_DOWN,
+        new AbstractAction("Top-down strategy") {
+
+      private static final long serialVersionUID = 2544135868930137253L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.setStrategy(new TopDownStrategy());
       }
 
     });
@@ -102,7 +146,44 @@ public class GUIActions {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        ctrl.setMethod(new LatexDisplay());
+        ctrl.setLaTeXMethod();
+      }
+
+    });
+    final NodeRenderer nr = Controller.CUSTOM_RENDERER;
+    String crName = nr != null ? nr.getClass().getName() : "-";
+    actionMap.put(ActionID.CUSTOM_RENDERER, new AbstractAction("Custom Renderer ("
+        + crName + ")") {
+
+      private static final long serialVersionUID = -5448188090530488777L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.setRenderer(nr);
+      }
+
+    });
+    final TreeStrategy ts = Controller.CUSTOM_STRATEGY;
+    String csName = ts != null ? ts.getClass().getName() : "-";
+    actionMap.put(ActionID.CUSTOM_STRATEGY, new AbstractAction("Custom Strategy ("
+        + csName + ")") {
+
+      private static final long serialVersionUID = 2422472290296174048L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.setStrategy(ts);
+      }
+
+    });
+    actionMap.put(ActionID.SYNTAX_TREE_SAVE, new AbstractAction(
+        "Save current syntax tree...") {
+
+      private static final long serialVersionUID = 4364532498561812929L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.saveTree();
       }
 
     });
@@ -116,7 +197,7 @@ public class GUIActions {
       }
 
     });
-    actionMap.put(ActionID.GRAMMAR_SAVE, new AbstractAction("Save grammar...",
+    actionMap.put(ActionID.GRAMMAR_SAVE, new AbstractAction("Save grammar",
         icon("save")) {
 
       private static final long serialVersionUID = -8903820399182467464L;
@@ -124,6 +205,16 @@ public class GUIActions {
       @Override
       public void actionPerformed(final ActionEvent e) {
         ctrl.saveGrammar();
+      }
+
+    });
+    actionMap.put(ActionID.GRAMMAR_SAVE_AS, new AbstractAction("Save grammar as...") {
+
+      private static final long serialVersionUID = -4823837786555270274L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.saveGrammarAs();
       }
 
     });
@@ -135,6 +226,16 @@ public class GUIActions {
       @Override
       public void actionPerformed(final ActionEvent e) {
         ctrl.openGrammar();
+      }
+
+    });
+    actionMap.put(ActionID.GRAMMAR_NEW, new AbstractAction("New grammar") {
+
+      private static final long serialVersionUID = -2773817874878903577L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.newGrammar();
       }
 
     });
