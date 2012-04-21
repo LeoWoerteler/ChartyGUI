@@ -9,15 +9,19 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
 import de.woerteler.charty.Displayer;
@@ -100,6 +104,7 @@ public final class ParseTreeViewer extends JPanel {
           origY = getOffsetY();
           drag = true;
         }
+        grabFocus();
       }
 
       @Override
@@ -153,6 +158,14 @@ public final class ParseTreeViewer extends JPanel {
     right.setEnabled(false);
     nav.add(right, BorderLayout.EAST);
     add(nav, BorderLayout.SOUTH);
+
+    setFocusable(true);
+    final ActionMap action = getActionMap();
+    final InputMap input = getInputMap();
+    input.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), VIEW_PREV);
+    input.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), VIEW_NEXT);
+    action.put(VIEW_NEXT, ctrl.getActionFor(VIEW_NEXT));
+    action.put(VIEW_PREV, ctrl.getActionFor(VIEW_PREV));
   }
 
   /**
@@ -173,6 +186,7 @@ public final class ParseTreeViewer extends JPanel {
       right.setEnabled(pos < num);
     }
     setTree(disp);
+    grabFocus();
   }
 
   /**
