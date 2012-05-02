@@ -274,11 +274,7 @@ public final class ChartyGUI extends JFrame {
 
   @Override
   public void dispose() {
-    if(ctrl.closeGrammar()) {
-      // abort dispose
-      setVisible(true);
-      return;
-    }
+    if(ctrl.closeGrammar()) return; // abort dispose
     ctrl.refreshIniValues();
     refreshIniValues();
     writeIniOnChange();
