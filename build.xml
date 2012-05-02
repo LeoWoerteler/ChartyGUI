@@ -3,15 +3,58 @@
 	<property name="license" location="LICENSE"/>  
 	<property name="bin" location="bin"/>
 	<property name="res" location="resources"/>
+	<property name="batik" location="lib/batik-1.7"/>
+	<property name="batik_jar" location="lib/batik_full.jar"/>
 	<target name="create_run_jar">
+		<jar destfile="${batik_jar}" filesetmanifest="mergewithoutmain">
+			<zipfileset excludes="META-INF/*.MF" src="${batik}/batik.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/batik-rasterizer.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/batik-squiggle.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-anim.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-awt-util.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-bridge.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-codec.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-css.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-dom.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-ext.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-gui-util.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-gvt.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-parser.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-script.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-svg-dom.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-svggen.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-swing.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-transcoder.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-util.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/batik-xml.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/js.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/pdf-transcoder.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/xalan-2.6.0.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/xerces_2_5_0.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/xml-apis-ext.jar"/>
+			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/xml-apis.jar"/>
+			<fileset dir="${batik}" excludes="**/*.jar"/>
+		</jar>
         <jar destfile="ChartyGUI.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="de.woerteler.gui.ChartyGUI"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="${bin}"/>
+            <fileset dir="${bin}">
+            	<exclude name="de/woerteler/svg/**"/>
+            </fileset>
             <fileset dir="${res}" />
         	<fileset file="${license}" />
+        </jar>
+		<jar destfile="ChartyGUI-fat.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="de.woerteler.gui.ChartyGUI"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${bin}" />
+            <fileset dir="${res}" />
+            <fileset file="${license}" />
+			<zipfileset excludes="META-INF/*.MF,LICENSE" src="${batik_jar}"/>
         </jar>
     </target>
 </project>
