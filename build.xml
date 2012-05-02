@@ -2,6 +2,7 @@
 <project default="create_run_jar" name="Create Runnable Jar for Project ParserViewer">
 	<property name="license" location="LICENSE"/>  
 	<property name="bin" location="bin"/>
+	<property name="svg" value="de/woerteler/svg"/>
 	<property name="res" location="resources"/>
 	<property name="batik" location="lib/batik-1.7"/>
 	<property name="batik_jar" location="lib/batik_full.jar"/>
@@ -34,6 +35,9 @@
 			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/xml-apis-ext.jar"/>
 			<zipfileset excludes="META-INF/*.MF,META-INF/NOTICE,META-INF/LICENSE" src="${batik}/lib/xml-apis.jar"/>
 			<fileset dir="${batik}" excludes="**/*.jar"/>
+			<fileset dir="${bin}">
+				<include name="${svg}/**"/>
+			</fileset>
 		</jar>
         <jar destfile="ChartyGUI.jar" filesetmanifest="mergewithoutmain">
             <manifest>
@@ -41,7 +45,7 @@
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}">
-            	<exclude name="de/woerteler/svg/**"/>
+            	<exclude name="${svg}/**"/>
             </fileset>
             <fileset dir="${res}" />
         	<fileset file="${license}" />
@@ -51,7 +55,9 @@
                 <attribute name="Main-Class" value="de.woerteler.gui.ChartyGUI"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="${bin}" />
+			<fileset dir="${bin}">
+                <exclude name="${svg}/**"/>
+            </fileset>
             <fileset dir="${res}" />
             <fileset file="${license}" />
 			<zipfileset excludes="META-INF/*.MF,LICENSE" src="${batik_jar}"/>
