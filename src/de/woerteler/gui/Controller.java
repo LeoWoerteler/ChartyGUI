@@ -394,6 +394,16 @@ public final class Controller implements ParserInfoListener {
     gui.saveTree(file);
   }
 
+  /**
+   * Saves the current syntax tree as svg.
+   */
+  public void saveSVG() {
+    if(!gui.canSaveView()) return;
+    final File file = gui.saveSVGDialog();
+    if(file == null) return;
+    gui.saveSVG(file);
+  }
+
   /** The input phrase component. */
   private PhraseInput phraseInput;
 

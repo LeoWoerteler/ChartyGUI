@@ -11,8 +11,11 @@ import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -44,6 +47,7 @@ import de.woerteler.tree.strategy.BottomUpStrategy;
 import de.woerteler.tree.strategy.TopDownStrategy;
 import de.woerteler.tree.strategy.TreeStrategy;
 import de.woerteler.util.IOUtils;
+import de.woerteler.util.SVGOut;
 
 /**
  * The JFrame containing the GUI application.
@@ -69,6 +73,29 @@ public final class ChartyGUI extends JFrame {
   private static final int WINDOW_WIDTH = INI.getInteger("window", "width", 1024);
   /** Preferred height of the window. */
   private static final int WINDOW_HEIGHT = INI.getInteger("window", "height", 768);
+
+  /**
+   * The SVG writer if it is in the class path or <code>null</code> otherwise.
+   */
+  private static SVGOut svgOutput;
+
+  /**
+   * Load SVG output if it is in the class path.
+   */
+  static {
+    final ClassLoader loader = ChartyGUI.class.getClassLoader();
+    try {
+      final Class<?> lc = loader.loadClass("de.woerteler.svg.BatikSVG");
+      final Object obj = lc.newInstance();
+      if(obj instanceof SVGOut) {
+        svgOutput = (SVGOut) obj;
+      } else {
+        svgOutput = null;
+      }
+    } catch(final Exception e) {
+      svgOutput = null;
+    }
+  }
 
   /**
    * The initial window position or an empty array/<code>null</code> if it is in
@@ -182,6 +209,9 @@ public final class ChartyGUI extends JFrame {
     displayMenu.addSeparator();
     displayMenu.add(ctrl.getActionFor(VIEW_SAVE));
     displayMenu.add(ctrl.getActionFor(SYNTAX_TREE_SAVE));
+    if(svgOutput != null) {
+      displayMenu.add(ctrl.getActionFor(SVG_SAVE));
+    }
     // Left side: edit grammar and phrase
     editor = new GrammarEditor(ctrl);
     model.setDocument(editor.getDocument());
@@ -394,6 +424,27 @@ public final class ChartyGUI extends JFrame {
   }
 
   /**
+   * Saves the current view of the syntax tree as svg.
+   * 
+   * @param file The destination.
+   */
+  public void saveSVG(final File file) {
+    try {
+      final Writer w = new OutputStreamWriter(new FileOutputStream(file), IOUtils.UTF8);
+      final SVGOut out = svgOutput;
+      if(out == null) throw new IllegalStateException("SVG not installed!");
+      final Graphics2D g = out.getGraphics(NAME);
+      final Rectangle2D box = treeViewer.getSyntaxTreeBoundingBox();
+      g.translate(-box.getMinX(), -box.getMinY());
+      treeViewer.drawTree(g);
+      out.write(w, g);
+      w.close();
+    } catch(final Exception e) {
+      showError(e.getMessage());
+    }
+  }
+
+  /**
    * Saves the current syntax tree.
    * 
    * @param file The destination.
@@ -532,6 +583,25 @@ public final class ChartyGUI extends JFrame {
     final String name = res.getName();
     INI.setObject("last", "viewDir", par);
     if(!name.contains(".")) return new File(par, name + ".png");
+    return res;
+  }
+
+  /**
+   * Shows a SVG save dialog to the user.
+   * 
+   * @return the chosen file or {@code null}, if nothing was chosen
+   */
+  public File saveSVGDialog() {
+    final JFileChooser choose = new JFileChooser(INI.getObject("last", "svgDir",
+        Converter.FILE_CONVERTER, HOME_STR));
+    choose.setFileFilter(new FileNameExtensionFilter("Vector image (*.svg)", "svg"));
+    final boolean approved = choose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION;
+    final File res = approved ? choose.getSelectedFile() : null;
+    if(res == null) return null;
+    final File par = res.getParentFile();
+    final String name = res.getName();
+    INI.setObject("last", "svgDir", par);
+    if(!name.contains(".")) return new File(par, name + ".svg");
     return res;
   }
 
