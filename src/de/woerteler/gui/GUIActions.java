@@ -65,6 +65,9 @@ public class GUIActions {
     /** Saves the current syntax tree. */
     SYNTAX_TREE_SAVE,
 
+    /** Saves the current syntax tree as LaTeX document. */
+    LATEX_SAVE,
+
     /** Saves the current view. */
     VIEW_SAVE,
 
@@ -184,6 +187,16 @@ public class GUIActions {
       @Override
       public void actionPerformed(final ActionEvent e) {
         ctrl.saveTree();
+      }
+
+    });
+    actionMap.put(ActionID.LATEX_SAVE, new AbstractAction("Save syntax tree as LaTeX") {
+
+      private static final long serialVersionUID = 2654022091067389989L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        ctrl.saveLaTeX();
       }
 
     });

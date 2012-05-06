@@ -182,6 +182,7 @@ public final class ChartyGUI extends JFrame {
     displayMenu.addSeparator();
     displayMenu.add(ctrl.getActionFor(VIEW_SAVE));
     displayMenu.add(ctrl.getActionFor(SYNTAX_TREE_SAVE));
+    displayMenu.add(ctrl.getActionFor(LATEX_SAVE));
     // Left side: edit grammar and phrase
     editor = new GrammarEditor(ctrl);
     model.setDocument(editor.getDocument());
@@ -501,6 +502,7 @@ public final class ChartyGUI extends JFrame {
       dir = INI.getObject("last", "grammarDir", Converter.FILE_CONVERTER, HOME_STR);
     }
     final JFileChooser choose = new JFileChooser(dir);
+    choose.setFileFilter(new FileNameExtensionFilter("Grammar (*.gr)", "gr"));
     choose.setMultiSelectionEnabled(false);
     choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
     final boolean approved = choose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION;
@@ -509,6 +511,26 @@ public final class ChartyGUI extends JFrame {
       INI.setObject("last", "grammarDir", res.getParentFile());
     }
     return res;
+  }
+
+  /**
+   * Shows a LaTeX save dialog.
+   * 
+   * @return The selected file.
+   */
+  public File saveLaTeXDialog() {
+    final JFileChooser choose = new JFileChooser(INI.getObject("last", "latexDir",
+        Converter.FILE_CONVERTER, HOME_STR));
+    choose.setFileFilter(new FileNameExtensionFilter("TeX-Document (*.tex)", "tex"));
+    choose.setMultiSelectionEnabled(false);
+    choose.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    final boolean approved = choose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION;
+    final File res = approved ? choose.getSelectedFile() : null;
+    if(res == null) return null;
+    final File par = res.getParentFile();
+    INI.setObject("last", "latexDir", par);
+    final String name = res.getName();
+    return !name.contains(".") ? new File(par, name + ".tex") : res;
   }
 
   /**
@@ -525,10 +547,9 @@ public final class ChartyGUI extends JFrame {
     final File res = approved ? choose.getSelectedFile() : null;
     if(res == null) return null;
     final File par = res.getParentFile();
-    final String name = res.getName();
     INI.setObject("last", "viewDir", par);
-    if(!name.contains(".")) return new File(par, name + ".png");
-    return res;
+    final String name = res.getName();
+    return !name.contains(".") ? new File(par, name + ".png") : res;
   }
 
 }

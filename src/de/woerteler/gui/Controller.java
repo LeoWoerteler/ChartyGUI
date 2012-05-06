@@ -4,8 +4,11 @@ import static de.woerteler.gui.ChartyGUI.*;
 import static de.woerteler.gui.GUIActions.ActionID.*;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -324,6 +327,21 @@ public final class Controller implements ParserInfoListener {
   }
 
   /**
+   * Getter.
+   * 
+   * @return The LaTeX representation of the current tree.
+   */
+  public String getLaTeXText() {
+    final ParseTree[] trees = model.getParseTrees();
+    final int pos = model.getParseTreePos();
+    if(trees == null || pos < 0 || pos >= trees.length) {
+      gui.showError("No tree to generate LaTeX for.");
+      return null;
+    }
+    return trees[pos].getLaTeXText();
+  }
+
+  /**
    * Parses the given phrase.
    * 
    * @param text phrase
@@ -382,6 +400,24 @@ public final class Controller implements ParserInfoListener {
     final File file = gui.saveViewDialog();
     if(file == null) return;
     gui.saveView(file);
+  }
+
+  /**
+   * Saves the current tree as LaTeX document.
+   */
+  public void saveLaTeX() {
+    if(!gui.canSaveView()) return;
+    final String str = getLaTeXText();
+    if(str == null) return;
+    final File file = gui.saveLaTeXDialog();
+    if(file == null) return;
+    try {
+      final Writer out = new OutputStreamWriter(new FileOutputStream(file), IOUtils.UTF8);
+      out.append(str);
+      out.close();
+    } catch(final Exception e) {
+      gui.showError("Error saving LaTeX:\n" + e.getMessage());
+    }
   }
 
   /**
