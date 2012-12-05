@@ -23,7 +23,7 @@ public class LaTeXDisplay implements DisplayMethod {
    * @param edge The root edge.
    * @return LaTeX document
    */
-  private static String toLaTeX(final Edge edge) {
+  public static String toLaTeX(final Edge edge) {
     return "\\documentclass{article}\n\\usepackage{qtree}\n"
         + "\\usepackage[utf8]{inputenc}\n\n"
         + "\\usepackage[landscape]{geometry}\n" + "\\usepackage{fullpage}\n"
